@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+<head>
+  <title>wall</title>
+  <style>
+    body { overflow: hidden; }
+    main { filter: blur(6px); }
+    #backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); z-index: 9998; }
+    #wall { position: fixed; top: 20%; left: 20%; width: 60%; height: 50%; background: #fff; z-index: 9999; }
+  </style>
+</head>
+<body>
+  <main id="content"><p>Article text</p></main>
+  <div id="backdrop"></div>
+  <div id="wall"><h2>Ad blocker detected</h2><p>Please disable your ad blocker to keep reading.</p></div>
+</body>
+</html>

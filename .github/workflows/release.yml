@@ -1,0 +1,42 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Tag matches package.json
+        run: test "v$(node -p 'require("./package.json").version')" = "$GITHUB_REF_NAME"
+      - run: npm run build
+      - run: npm test
+      - run: node scripts/verify-load.mjs chrome
+      - run: npm run test:e2e
+      - run: npm run package
+      - name: Release notes from CHANGELOG
+        run: |
+          node -e '
+            const v = process.env.GITHUB_REF_NAME.slice(1);
+            const cl = require("fs").readFileSync("CHANGELOG.md", "utf8");
+            const start = cl.indexOf(`## [${v}]`);
+            if (start === -1) { console.error(`No CHANGELOG entry for ${v}`); process.exit(1); }
+            const next = cl.indexOf("\n## [", start + 1);
+            require("fs").writeFileSync("notes.md", cl.slice(cl.indexOf("\n", start) + 1, next === -1 ? undefined : next).trim() + "\n");
+          '
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" release/*.zip --title "SilentBlock ${GITHUB_REF_NAME#v}" --notes-file notes.md

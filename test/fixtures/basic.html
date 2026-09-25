@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head><title>basic</title></head>
+<body>
+  <div class="sb-generic-probe" id="tokenProbe">token probe</div>
+  <div data-sb-generic-probe id="complexProbe">complex probe</div>
+  <div class="sb-selftest-hide" id="specificProbe">specific probe</div>
+  <div class="sb-selftest-style" id="styleProbe">style probe</div>
+  <script>
+    window.__net = {};
+    function load(id, host) {
+      const s = document.createElement('script');
+      s.src = 'http://' + host + ':' + location.port + '/script.js?id=' + id;
+      s.onload = function () { window.__net[id] = 'load'; };
+      s.onerror = function () { window.__net[id] = 'error'; };
+      document.head.append(s);
+    }
+    load('ad', 'sb-ads.test');
+    load('ok', 'cdn-ok.test');
+
+    // set-constant target: the scriptlet pins sbSelfTest.flag to true on sb-selftest.test
+    window.sbSelfTest = { flag: false };
+    window.__flag = window.sbSelfTest.flag;
+
+    // prevent-setTimeout target, plus a control timer that must still run
+    window.__timerRan = false;
+    setTimeout(function sbSelfTestTimer() { window.__timerRan = true; }, 10);
+    window.__otherTimerRan = false;
+    setTimeout(function unrelated() { window.__otherTimerRan = true; }, 10);
+  </script>
+</body>
+</html>

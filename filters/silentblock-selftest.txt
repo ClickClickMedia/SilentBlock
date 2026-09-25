@@ -1,0 +1,24 @@
+! Title: SilentBlock self-test
+! Fixtures for the automated tests in test/e2e. Every rule targets the `.test` TLD,
+! which is reserved (RFC 2606) and never resolves on the real internet, so nothing
+! here can affect a real site. The tests run against the real shipped build.
+
+! Network: third-party only
+||sb-ads.test^$third-party
+
+! Generic cosmetic: one token selector and one complex selector
+##.sb-generic-probe
+##div[data-sb-generic-probe]
+
+! Site-specific cosmetic
+sb-selftest.test##.sb-selftest-hide
+sb-selftest.test##.sb-selftest-style:style(color: rgb(1, 2, 3))
+
+! Scriptlets (MAIN world, before page scripts)
+sb-selftest.test##+js(set, sbSelfTest.flag, true)
+sb-selftest.test##+js(nostif, sbSelfTestTimer)
+
+! Exceptions
+sb-exception.test#@#.sb-generic-probe
+sb-exception.test#@#div[data-sb-generic-probe]
+@@||sb-ghide.test^$ghide

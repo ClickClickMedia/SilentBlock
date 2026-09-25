@@ -1,0 +1,3 @@
+! Title: SilentBlock cookie banners
+! SilentBlock's own additions on top of EasyList Cookie and uBlock filters - Cookie notices.
+! Empty for now: the upstream lists hide banners without leaving consent walls behind.
