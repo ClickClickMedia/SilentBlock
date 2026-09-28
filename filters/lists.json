@@ -1,0 +1,163 @@
+{
+  "categories": {
+    "core": {
+      "title": "Core",
+      "description": "Unbreak fixes and SilentBlock's own exceptions. Always on while protection is on.",
+      "alwaysOn": true
+    },
+    "ads": {
+      "title": "Ads & anti-adblock",
+      "description": "Ad networks, ad slots and the scripts that nag you about blocking them.",
+      "default": true
+    },
+    "privacy": {
+      "title": "Trackers",
+      "description": "Analytics, tracking pixels and fingerprinting.",
+      "default": true
+    },
+    "annoyances": {
+      "title": "Cookie banners",
+      "description": "Hides cookie consent pop-ups without breaking the page underneath.",
+      "default": true
+    },
+    "security": {
+      "title": "Malware & scams",
+      "description": "Known malware, phishing and scam hosts. Stays on for paused sites: pausing is about ads, not safety.",
+      "default": true
+    }
+  },
+  "lists": [
+    {
+      "id": "silentblock-core",
+      "title": "SilentBlock core",
+      "category": "core",
+      "file": "filters/silentblock-core.txt"
+    },
+    {
+      "id": "silentblock-selftest",
+      "title": "SilentBlock self-test (.test hosts only)",
+      "category": "core",
+      "file": "filters/silentblock-selftest.txt"
+    },
+    {
+      "id": "ubo-unbreak",
+      "title": "uBlock filters - Unbreak",
+      "category": "core",
+      "file": "filters/upstream/ubo-unbreak.txt",
+      "url": "https://ublockorigin.github.io/uAssets/filters/unbreak.min.txt",
+      "license": "GPL-3.0"
+    },
+    {
+      "id": "easylist",
+      "title": "EasyList",
+      "category": "ads",
+      "file": "filters/upstream/easylist.txt",
+      "url": "https://easylist.to/easylist/easylist.txt",
+      "license": "GPL-3.0 or CC BY-SA 3.0"
+    },
+    {
+      "id": "ubo-filters",
+      "title": "uBlock filters",
+      "category": "ads",
+      "file": "filters/upstream/ubo-filters.txt",
+      "url": "https://ublockorigin.github.io/uAssets/filters/filters.min.txt",
+      "license": "GPL-3.0"
+    },
+    {
+      "id": "ubo-quick-fixes",
+      "title": "uBlock filters - Quick fixes",
+      "category": "ads",
+      "file": "filters/upstream/ubo-quick-fixes.txt",
+      "url": "https://ublockorigin.github.io/uAssets/filters/quick-fixes.min.txt",
+      "license": "GPL-3.0"
+    },
+    {
+      "id": "silentblock-ads",
+      "title": "SilentBlock ads",
+      "category": "ads",
+      "file": "filters/silentblock-ads.txt"
+    },
+    {
+      "id": "easyprivacy",
+      "title": "EasyPrivacy",
+      "category": "privacy",
+      "file": "filters/upstream/easyprivacy.txt",
+      "url": "https://easylist.to/easylist/easyprivacy.txt",
+      "license": "GPL-3.0 or CC BY-SA 3.0"
+    },
+    {
+      "id": "ubo-privacy",
+      "title": "uBlock filters - Privacy",
+      "category": "privacy",
+      "file": "filters/upstream/ubo-privacy.txt",
+      "url": "https://ublockorigin.github.io/uAssets/filters/privacy.min.txt",
+      "license": "GPL-3.0"
+    },
+    {
+      "id": "silentblock-privacy",
+      "title": "SilentBlock trackers",
+      "category": "privacy",
+      "file": "filters/silentblock-privacy.txt"
+    },
+    {
+      "id": "easylist-cookie",
+      "title": "EasyList Cookie List",
+      "category": "annoyances",
+      "file": "filters/upstream/easylist-cookie.txt",
+      "url": "https://secure.fanboy.co.nz/fanboy-cookiemonster.txt",
+      "license": "GPL-3.0 or CC BY-SA 3.0"
+    },
+    {
+      "id": "ubo-cookies",
+      "title": "uBlock filters - Cookie notices",
+      "category": "annoyances",
+      "file": "filters/upstream/ubo-cookies.txt",
+      "url": "https://ublockorigin.github.io/uAssets/filters/annoyances-cookies.txt",
+      "license": "GPL-3.0"
+    },
+    {
+      "id": "silentblock-annoyances",
+      "title": "SilentBlock cookie banners",
+      "category": "annoyances",
+      "file": "filters/silentblock-annoyances.txt"
+    },
+    {
+      "id": "ubo-badware",
+      "title": "uBlock filters - Badware risks",
+      "category": "security",
+      "file": "filters/upstream/ubo-badware.txt",
+      "url": "https://ublockorigin.github.io/uAssets/filters/badware.min.txt",
+      "license": "GPL-3.0"
+    },
+    {
+      "id": "urlhaus",
+      "title": "Malicious URL Blocklist (URLhaus)",
+      "category": "security",
+      "file": "filters/upstream/urlhaus.txt",
+      "url": "https://malware-filter.gitlab.io/malware-filter/urlhaus-filter-ag-online.txt",
+      "license": "CC0 / MIT"
+    },
+    {
+      "id": "phishing",
+      "title": "Phishing URL Blocklist",
+      "category": "security",
+      "file": "filters/upstream/phishing.txt",
+      "url": "https://malware-filter.gitlab.io/malware-filter/phishing-filter-ag.txt",
+      "license": "CC BY-SA 4.0"
+    },
+    {
+      "id": "scam",
+      "title": "Scam Blocklist by DurableNapkin",
+      "category": "security",
+      "file": "filters/upstream/scam.txt",
+      "url": "https://raw.githubusercontent.com/durablenapkin/scamblocklist/master/adguard.txt",
+      "license": "MIT"
+    },
+    {
+      "id": "silentblock-security",
+      "title": "SilentBlock security",
+      "category": "security",
+      "file": "filters/silentblock-security.txt"
+    }
+  ]
+}

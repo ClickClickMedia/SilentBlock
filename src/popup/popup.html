@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>SilentBlock</title>
+  <link rel="stylesheet" href="../shared/ui.css">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main class="popup" id="popup" data-state="loading">
+    <header class="head">
+      <img class="shield" id="stateIcon" src="../icons/idle-32.png" width="22" height="22" alt="">
+      <span class="brand">SilentBlock</span>
+      <span class="version" id="version"></span>
+    </header>
+
+    <section class="row">
+      <div>
+        <div class="label">Protection</div>
+        <div class="hint" id="protectionHint">&nbsp;</div>
+      </div>
+      <label class="switch" title="Turn SilentBlock on or off everywhere">
+        <input type="checkbox" id="enabled" aria-label="Protection">
+        <span></span>
+      </label>
+    </section>
+
+    <section class="site" id="site">
+      <div class="host" id="hostname">&nbsp;</div>
+      <div class="row" id="siteRow">
+        <div>
+          <div class="label">Block on this site</div>
+          <div class="hint" id="siteHint">&nbsp;</div>
+        </div>
+        <label class="switch" title="Pause SilentBlock on this site">
+          <input type="checkbox" id="siteOn" aria-label="Block on this site">
+          <span></span>
+        </label>
+      </div>
+      <button class="btn primary reload" id="reload" hidden>Reload page to apply</button>
+    </section>
+
+    <section class="stat" id="stat">
+      <div class="count"><span class="num" id="blocked">0</span><span class="cap" id="cap">blocked on this page</span></div>
+      <p class="status-line" id="statusLine"><span class="dot"></span><span id="statusText">&nbsp;</span></p>
+    </section>
+
+    <section class="actions" id="actions">
+      <button class="btn" id="unwall" title="Remove an anti-adblock wall or overlay on this page">Kill nag wall</button>
+      <label class="check"><input type="checkbox" id="unwallAlways"> Always on this site</label>
+    </section>
+
+    <footer class="foot">
+      <a href="#" id="settings">Settings</a>
+    </footer>
+  </main>
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

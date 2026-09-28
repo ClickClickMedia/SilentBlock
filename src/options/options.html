@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SilentBlock settings</title>
+  <link rel="stylesheet" href="../shared/ui.css">
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <img class="shield" src="../icons/idle-128.png" width="36" height="36" alt="">
+      <div>
+        <h1>SilentBlock</h1>
+        <p class="hint" id="subtitle">&nbsp;</p>
+      </div>
+    </header>
+
+    <section class="card">
+      <div class="row">
+        <div>
+          <h2>Protection</h2>
+          <p class="hint">Turns every filter on or off, everywhere.</p>
+        </div>
+        <label class="switch"><input type="checkbox" id="enabled" aria-label="Protection"><span></span></label>
+      </div>
+      <div id="categories"></div>
+      <p class="hint note">Changes apply to pages as they load. Reload open tabs to see them.</p>
+    </section>
+
+    <section class="card">
+      <h2>Paused sites</h2>
+      <p class="hint">SilentBlock does nothing on these sites or their subdomains. Pausing is also the fix when a site breaks.</p>
+      <form class="add" id="addPaused">
+        <input type="text" id="pausedInput" placeholder="example.com" autocomplete="off" spellcheck="false" aria-label="Site to pause">
+        <button class="btn" type="submit">Pause site</button>
+      </form>
+      <p class="error" id="pausedError" hidden></p>
+      <ul class="list" id="pausedList"></ul>
+    </section>
+
+    <section class="card">
+      <h2>Nag-wall sites</h2>
+      <p class="hint">On these sites SilentBlock watches for "turn off your ad blocker" walls and removes them as the page loads. Add one from the popup with "Always on this site".</p>
+      <ul class="list" id="unwallList"></ul>
+    </section>
+
+    <section class="card">
+      <div class="row">
+        <div>
+          <h2>Colour the icon by page status</h2>
+          <p class="hint">Blue: nothing to block. Green: ads and trackers blocked. Amber: a pushy site, pop-ups or nag walls stopped. Red: malware or scam hosts blocked. Grey: paused. Off keeps the icon blue.</p>
+        </div>
+        <label class="switch"><input type="checkbox" id="statusIcon" aria-label="Colour the icon by page status"><span></span></label>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="row">
+        <div>
+          <h2>Show count on icon</h2>
+          <p class="hint">Show the number of blocked requests on the toolbar icon.</p>
+        </div>
+        <label class="switch"><input type="checkbox" id="badge" aria-label="Show count on icon"><span></span></label>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Backup</h2>
+      <p class="hint">Settings live only in this browser. Export them to move to another browser or keep a copy.</p>
+      <div class="buttons">
+        <button class="btn" id="export">Export settings</button>
+        <label class="btn" for="importFile">Import settings</label>
+        <input type="file" id="importFile" accept="application/json,.json" hidden>
+      </div>
+      <p class="hint" id="backupStatus" role="status"></p>
+    </section>
+
+    <section class="card">
+      <h2>Filter lists</h2>
+      <p class="hint">Lists are bundled with each release and never downloaded at runtime.</p>
+      <div class="table-wrap">
+        <table class="lists">
+          <thead><tr><th>List</th><th>Category</th><th>Snapshot</th><th>License</th></tr></thead>
+          <tbody id="listRows"></tbody>
+        </table>
+      </div>
+      <p class="hint" id="ruleSummary"></p>
+    </section>
+  </div>
+  <script type="module" src="options.js"></script>
+</body>
+</html>

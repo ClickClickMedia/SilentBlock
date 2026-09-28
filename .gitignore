@@ -8,11 +8,18 @@ Desktop.ini
 !.vscode/settings.json
 *.code-workspace
 
-# Build / packaging
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+release/
+test-results/
+playwright-report/
 *.zip
 *.xpi
 *.crx
-archive/
+*.pem
 
 # Chrome extension metadata (generated when loaded unpacked)
 _metadata/

@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+<head>
+  <title>gtag</title>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    // Anti-flicker snippet: the page stays hidden until GTM calls hide.end()
+    window.__ended = false;
+    window.dataLayer.hide = { end: function () { window.__ended = true; } };
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-TEST');
+    window.__callback = false;
+    gtag('event', 'outbound_click', { event_callback: function () { window.__callback = true; } });
+  </script>
+  <!-- First-party proxied tag (Google Tag Gateway style): only the path gives it away. -->
+  <script src="/gtag/js?id=G-TEST"></script>
+</head>
+<body>gtag fixture</body>
+</html>

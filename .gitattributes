@@ -1,0 +1,5 @@
+* text=auto eol=lf
+*.png binary
+*.gif binary
+# Upstream snapshots are kept byte-exact so their recorded sha256 stays valid.
+filters/upstream/*.txt -text linguist-vendored

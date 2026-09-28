@@ -1,52 +1,44 @@
-# SilentBlock — AI Coding Instructions
+# SilentBlock: notes for AI coding assistants
 
-## Project Overview
-SilentBlock is a free, cross-browser (Chrome, Edge, Firefox, Opera) ad-blocking extension built on Manifest V3.
+SilentBlock is a Chrome MV3 ad blocker. Filter lists are compiled at build time into
+declarativeNetRequest rulesets, cosmetic data files and MAIN-world scriptlet buckets.
+Read README.md first; this file is the short list of things that bite.
 
-## Architecture
-- **Manifest V3** with `declarativeNetRequest` for efficient network-level blocking
-- **Cosmetic CSS filtering** to hide ad containers the network layer can't catch
-- **Content script** with MutationObserver for dynamic ad removal, popup blocking, and anti-adblock countermeasures
-- **Background service worker** handling global/per-site toggle state
-- **Cross-browser API alias**: `const api = typeof browser !== 'undefined' ? browser : chrome;` — always use `api.*`, never `chrome.*` directly
+## Rules
+- Never fetch filters or code at runtime. Lists are committed snapshots in `filters/upstream/`.
+- No telemetry, analytics or remote calls of any kind. Keep it free, with no nags or upsells.
+- On ordinary sites SilentBlock must not patch page APIs. Anything that runs in the page's
+  MAIN world goes through a scriptlet that a filter targets at specific hosts.
+- Hide, never remove, page elements in anything heuristic (`src/shared/unwall-core.js`).
+- Use `chrome.*` promise APIs (Firefox supports them too). No `browser` alias, no callbacks.
+- Build output lives in `dist/`. Never edit it by hand, and never commit it.
 
-## Key Files
-| File | Purpose |
-|---|---|
-| `manifest.json` | Extension manifest — permissions, content scripts, declarativeNetRequest rules |
-| `background.js` | Service worker — toggle logic, badge updates, dynamic rule management |
-| `rules/rules.json` | Static blocking rules (domain-based and URL-pattern-based) |
-| `content/cosmetic.css` | CSS selectors that hide known ad elements |
-| `content/content.js` | Dynamic ad hiding, popup blocker, anti-adblock bait |
-| `popup/popup.html` | Extension popup UI |
-| `popup/popup.css` | Popup styles (dark theme) |
-| `popup/popup.js` | Popup logic — reads/writes toggle state via messages to background.js |
+## Traps
+- A single `regexFilter` Chrome rejects stops the ENTIRE extension loading, and
+  `--load-extension` fails silently. Run the full build (it validates regexes with
+  `declarativeNetRequest.isRegexSupported`) and `node scripts/verify-load.mjs`, which
+  prints Chrome's real error.
+- One invalid selector voids a whole grouped CSS rule; the build validates selectors in Chromium.
+- `||host^` means "host and subdomains" (becomes `requestDomains`); `||host` without `^`
+  does not, and must stay a `urlFilter`.
+- Entity domains (`example.*`) cannot be expressed; filters using only entities are
+  dropped, never widened to generic.
+- Priorities: block 10, redirect 11, list exception 20, `$important` 30, user pause 1000,
+  security block 2000 (beats a pause), security "continue anyway" session rule 3000.
+- The service worker can die at any time. State lives in `chrome.storage`; `apply.js`
+  must stay idempotent. All listeners are registered synchronously at top level.
+- Settings changes must come from extension pages (`sender.url` is ours). Content scripts
+  may only send `tokens` and `wall`, neither of which changes settings.
+- Chrome writes `_metadata/` into a loaded unpacked folder; `package.mjs` skips `_` paths.
+- Anything that must happen before a tab-under's redirect (popup opener registration, the
+  last committed URL) is done synchronously at the top of the listener, before any await.
+- Security page URLs (~36k) live in `security/urls.json` and are checked by the worker;
+  as DNR rules they would blow the 30k guarantee.
+- Icons are generated: edit `scripts/icons.mjs` and run it, never hand-edit the PNGs.
 
-## Conventions
-- All JS files use `'use strict'` at the top
-- Use `api.*` instead of `chrome.*` or `browser.*` for cross-browser compatibility
-- Rule IDs in `rules.json` must be unique integers starting from 1
-- CSS selectors in `cosmetic.css` use `!important` to override inline styles
-- Version is tracked in `manifest.json` → `"version"` field — use the bump script to increment
-
-## Version Bumping
-Run `version-bump.ps1` with `-Part patch|minor|major` to bump the version in `manifest.json`.
-The script updates the version, commits, and creates a git tag.
-
-## Adding Blocking Rules
-1. Add new entries to `rules/rules.json` with a unique `id` (increment from last)
-2. Use `requestDomains` for domain-based blocking, `urlFilter` for URL patterns
-3. Always specify `resourceTypes` array
-4. After editing, reload the extension in the browser
-
-## Browser Support
-- Chrome 88+ (MV3 base support)
-- Edge 88+ (Chromium-based, same as Chrome)
-- Firefox 128+ (MV3 + declarativeNetRequest)
-- Opera 74+ (Chromium-based)
-
-## Do NOT
-- Add subscription/payment/nag features — this is free forever
-- Add telemetry, analytics, or any data collection
-- Add remote rule fetching — all rules are local
-- Use `chrome.*` directly — always use the `api` alias
+## Tests
+- `npm test` for the compiler and settings; `npm run test:e2e` for the real build in Chromium.
+- `filters/silentblock-selftest.txt` targets reserved `.test` hosts and drives the e2e tests.
+- Headless Chromium maps every host to the local fixture server
+  (`--host-resolver-rules`). Use `.test` hosts in fixtures; real Google hosts are
+  HSTS-preloaded and will not load over http.

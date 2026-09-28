@@ -1,0 +1,48 @@
+name: Update filter lists
+
+# Weekly refresh of filters/upstream/. Opens a PR only if the build and every test pass
+# with the new lists, so a bad upstream change never lands silently.
+on:
+  schedule:
+    - cron: '0 20 * * 0' # Sunday 20:00 UTC = Monday morning in Sydney
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run lists:update
+      - name: Anything changed?
+        id: diff
+        run: |
+          if git diff --quiet -- filters/upstream; then echo "changed=false" >> "$GITHUB_OUTPUT"; else echo "changed=true" >> "$GITHUB_OUTPUT"; fi
+      - if: steps.diff.outputs.changed == 'true'
+        run: npm run build
+      - if: steps.diff.outputs.changed == 'true'
+        run: npm test && node scripts/verify-load.mjs chrome && npm run test:e2e
+      - if: steps.diff.outputs.changed == 'true'
+        name: Open PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          branch="lists/$(date -u +%Y-%m-%d)"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add filters/upstream
+          git commit -m "Update filter lists $(date -u +%Y-%m-%d)"
+          git push -u origin "$branch"
+          node -e 'const r=require("./dist/build-report.json").meta.rulesets; console.log("| ruleset | rules | regex | domains |\n|---|---|---|---|\n"+Object.entries(r).map(([k,v])=>`| ${k} | ${v.rules} | ${v.regex} | ${v.domains} |`).join("\n"))' > body.md
+          gh pr create --title "Update filter lists $(date -u +%Y-%m-%d)" --body-file body.md

@@ -1,0 +1,24 @@
+{
+  "name": "silentblock",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Free, silent ad blocker for Chrome (MV3). No ads, no nags.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.2"
+  },
+  "scripts": {
+    "lists:update": "node scripts/update-lists.mjs",
+    "build": "node scripts/build.mjs",
+    "build:fast": "node scripts/build.mjs --no-validate",
+    "test": "node --test \"test/unit/*.test.mjs\"",
+    "test:e2e": "playwright test",
+    "check": "npm run build && npm test && node scripts/verify-load.mjs && npm run test:e2e",
+    "package": "node scripts/package.mjs",
+    "bump": "node scripts/bump.mjs",
+    "verify": "node scripts/verify-load.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0"
+  }
+}

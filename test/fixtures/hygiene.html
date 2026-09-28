@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+  <title>hygiene</title>
+  <style>
+    body { overflow: hidden; }
+    .menu { position: absolute; z-index: 500; top: 40px; left: 10px; width: 320px; height: 200px; background: #eee; }
+  </style>
+</head>
+<body>
+  <!-- A normal admin-panel dropdown. v1 deleted this because it mentions "whitelist". -->
+  <div class="menu" id="menu">Firewall: IP whitelist, IP blacklist. We noticed 3 new logins.</div>
+  <div id="glass">glass panel</div>
+  <img id="lqip" alt="">
+  <script>
+    document.getElementById('glass').classList.add('backdrop-blur-md', 'blur-sm');
+    document.getElementById('lqip').style.filter = 'blur(8px)';
+    var ts = Function.prototype.toString;
+    window.__natives = {
+      open: ts.call(window.open),
+      fetch: ts.call(window.fetch),
+      xhrOpen: ts.call(XMLHttpRequest.prototype.open),
+      sendBeacon: ts.call(navigator.sendBeacon),
+      classListAdd: ts.call(DOMTokenList.prototype.add),
+      setProperty: ts.call(CSSStyleDeclaration.prototype.setProperty),
+      image: ts.call(window.Image),
+    };
+    window.__globals = ['blockAdBlock', 'fuckAdBlock', 'googletag', 'adsbygoogle', 'VALNET_GLOBAL_ISADBLOCK', 'ga', 'gtag']
+      .filter(function (k) { return k in window; });
+  </script>
+</body>
+</html>

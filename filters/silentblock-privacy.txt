@@ -1,0 +1,23 @@
+! Title: SilentBlock trackers
+! SilentBlock's own additions on top of EasyPrivacy and uBlock filters - Privacy.
+
+! ---------------------------------------------------------------------------
+! Stand-ins: Google's tag libraries are swapped for stubs that still fire the
+! page's callbacks, so "track then navigate" links and anti-flicker snippets
+! do not hang the page.
+! ---------------------------------------------------------------------------
+||google-analytics.com/analytics.js$script,redirect=google-analytics_analytics.js
+||google-analytics.com/ga.js$script,redirect=google-analytics_ga.js
+||googletagmanager.com/gtm.js$script,redirect=googletagmanager_gtm.js
+||googletagmanager.com/gtag/js$script,redirect=googletagmanager_gtm.js
+||scorecardresearch.com/beacon.js$script,redirect=scorecardresearch_beacon.js
+
+! ---------------------------------------------------------------------------
+! Google Tag Gateway / first-party proxied tags (SilentBlock 1.5.0). The tag is
+! served from the site's own domain, so only the path gives it away.
+! ---------------------------------------------------------------------------
+/gtag/js?id=G-$script,1p,redirect=googletagmanager_gtm.js
+/gtag/js?id=AW-$script,1p,redirect=googletagmanager_gtm.js
+/gtm.js?id=GTM-$script,1p,redirect=googletagmanager_gtm.js
+/g/collect?v=2&$image,ping,xmlhttprequest,other
+/gtag/destination?id=$script,xmlhttprequest

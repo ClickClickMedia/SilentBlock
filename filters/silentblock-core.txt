@@ -1,0 +1,62 @@
+! Title: SilentBlock core
+! Always on while protection is on, whatever categories are enabled.
+! Keep this to exceptions that stop SilentBlock breaking the tools people work in.
+! When a site is broken, the user-facing fix is "Pause on this site" in the popup;
+! add an exception here only when a whole product is broken for everyone.
+
+! ---------------------------------------------------------------------------
+! Marketing and analytics consoles. These products load their own "tracker"
+! hosts first-party, so blocking the tracker breaks the console itself.
+! ---------------------------------------------------------------------------
+
+! Google Analytics 4
+@@||google-analytics.com^$domain=analytics.google.com|marketingplatform.google.com
+@@||analytics.google.com^$domain=analytics.google.com|marketingplatform.google.com
+@@||googletagmanager.com^$domain=analytics.google.com
+
+! Google Tag Manager and Tag Assistant (preview mode loads gtm.js with debug params)
+@@||googletagmanager.com^$domain=tagmanager.google.com|tagassistant.google.com
+@@||google-analytics.com^$domain=tagmanager.google.com|tagassistant.google.com
+@@||analytics.google.com^$domain=tagassistant.google.com
+
+! Google Ads, Ad Manager, AdSense, DV360, Search Ads 360, Merchant Center
+@@||googleadservices.com^$domain=ads.google.com|admanager.google.com|adsense.google.com|displayvideo.google.com|searchads.google.com|merchants.google.com
+@@||doubleclick.net^$domain=ads.google.com|admanager.google.com|adsense.google.com|displayvideo.google.com|searchads.google.com|campaignmanager.google.com
+@@||googlesyndication.com^$domain=ads.google.com|admanager.google.com|adsense.google.com
+@@||ads.google.com^$domain=ads.google.com
+@@||googletagservices.com^$domain=admanager.google.com
+
+! Microsoft Advertising and Clarity
+@@||bat.bing.com^$domain=ads.microsoft.com|ui.ads.microsoft.com
+@@||clarity.ms^$domain=clarity.microsoft.com
+
+! Meta Business Suite / Ads Manager
+@@||connect.facebook.net^$domain=business.facebook.com|adsmanager.facebook.com
+@@||facebook.com/tr$domain=business.facebook.com|adsmanager.facebook.com
+
+! LinkedIn Campaign Manager
+@@||ads.linkedin.com^$domain=linkedin.com
+@@||px.ads.linkedin.com^$domain=linkedin.com
+
+! Vendor dashboards whose product is the tracker
+@@||hotjar.com^$domain=hotjar.com
+@@||hotjar.io^$domain=hotjar.com
+@@||fullstory.com^$domain=fullstory.com
+@@||mouseflow.com^$domain=mouseflow.com
+@@||crazyegg.com^$domain=crazyegg.com
+@@||heapanalytics.com^$domain=heap.io|heapanalytics.com
+@@||segment.com^$domain=segment.com
+@@||segment.io^$domain=segment.com
+@@||mixpanel.com^$domain=mixpanel.com
+@@||amplitude.com^$domain=amplitude.com
+@@||sentry.io^$domain=sentry.io
+@@||sentry-cdn.com^$domain=sentry.io
+@@||onesignal.com^$domain=onesignal.com
+@@||semrush.com^$domain=semrush.com
+
+! ---------------------------------------------------------------------------
+! Popups: never close tabs opened from webmail or the ad consoles. Tracked
+! links there go through ad click-trackers (doubleclick.net and friends) in a
+! new tab, and clicking them is the whole point.
+! ---------------------------------------------------------------------------
+@@*$popup,domain=mail.google.com|outlook.live.com|outlook.office.com|outlook.office365.com|ads.google.com|admanager.google.com|analytics.google.com|tagassistant.google.com|business.facebook.com|adsmanager.facebook.com|ads.microsoft.com
