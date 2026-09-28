@@ -18,7 +18,7 @@ export const STATES = {
   danger:    { body: '#A4243B', facet: '#831C2F', meaning: 'Known malware, phishing or scam host (garnet)' },
   paused:    { body: '#8A919A', facet: '#727982', meaning: 'Paused on this site, or protection off (grey)' },
 };
-const SIZES = [16, 32, 48, 128];
+const SIZES = [16, 32, 48, 64, 128];
 
 // Hand in local coordinates, middle finger centred on x=32. The thumb grows out of the
 // palm's lower-left along the index finger so it reads as one fist at 16px.

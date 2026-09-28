@@ -36,6 +36,7 @@
     "16": "icons/idle-16.png",
     "32": "icons/idle-32.png",
     "48": "icons/idle-48.png",
+    "64": "icons/idle-64.png",
     "128": "icons/idle-128.png"
   },
   "web_accessible_resources": [
