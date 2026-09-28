@@ -145,7 +145,10 @@ each store it has credentials for. Every store reviews the upload before users g
 | Firefox (AMO) | `silentblock@local` | Repo secrets `AMO_JWT_ISSUER`, `AMO_JWT_SECRET` |
 | Microsoft Edge | `hhdolnhpfeeipbomjfkalbhegkakbkmo` | Repo secrets `EDGE_PRODUCT_ID`, `EDGE_CLIENT_ID`, `EDGE_API_KEY` |
 
-A store with no credentials is skipped. The same scripts run locally: `npm run package`, then
+A store with no credentials is skipped. To retry a store, or publish an existing release after
+adding credentials, run the Publish workflow by hand:
+`gh workflow run publish.yml -f tag=v2.0.1 -f stores=firefox` (stores defaults to all three).
+The same scripts run locally: `npm run package`, then
 `npm run publish:chrome` (signs in through your gcloud login), `publish:firefox` or
 `publish:edge` with the variables above. `npm run store:status` shows what Chrome has.
 Listing text and images: `docs/store-listing.md` and `npm run store:art`.
