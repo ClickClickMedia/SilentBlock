@@ -12,9 +12,11 @@ const HOSTS = ['site.test', 'sb-ads.test', 'cdn-ok.test', 'sb-selftest.test', 's
 const server = await startServer();
 // Pin the installed binary and stop a running Firefox from absorbing the test instance.
 process.env.MOZ_NO_REMOTE = '1';
-const opts = new firefox.Options()
-  .setBinary(process.env.FIREFOX_BIN || (process.platform === 'win32' ? 'C:/Program Files/Mozilla Firefox/firefox.exe' : 'firefox'))
-  .addArguments('-headless', '-no-remote')
+const opts = new firefox.Options().addArguments('-headless', '-no-remote');
+// Windows: pin the installed Firefox. Elsewhere Selenium finds it (or FIREFOX_BIN).
+const bin = process.env.FIREFOX_BIN || (process.platform === 'win32' ? 'C:/Program Files/Mozilla Firefox/firefox.exe' : '');
+if (bin) opts.setBinary(bin);
+opts
   .setPreference('network.dns.localDomains', HOSTS.join(','))
   .setPreference('dom.security.https_only_mode', false)
   .setPreference('extensions.webextensions.restrictedDomains', '');
