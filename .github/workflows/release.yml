@@ -1,16 +1,22 @@
 name: Release
 
+# Push a tag like v2.0.1 and this builds, tests, creates the GitHub release, then submits
+# the new version to every store it has credentials for:
+#   Chrome Web Store  keyless, via Workload Identity Federation (clicktrack-505800)
+#   Firefox (AMO)     secrets AMO_JWT_ISSUER, AMO_JWT_SECRET
+#   Microsoft Edge    secrets EDGE_PRODUCT_ID, EDGE_CLIENT_ID, EDGE_API_KEY
+# A store with no credentials is skipped, not failed. Each store then reviews the upload
+# before it reaches users.
 on:
   push:
     tags: ['v*']
 
-permissions:
-  contents: write
-
 jobs:
-  release:
+  build:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -25,6 +31,8 @@ jobs:
       - run: npm test
       - run: node scripts/verify-load.mjs chrome
       - run: npm run test:e2e
+      - name: Firefox smoke test
+        run: npm run test:firefox
       - run: npm run package
       - name: Release notes from CHANGELOG
         run: |
@@ -36,7 +44,74 @@ jobs:
             const next = cl.indexOf("\n## [", start + 1);
             require("fs").writeFileSync("notes.md", cl.slice(cl.indexOf("\n", start) + 1, next === -1 ? undefined : next).trim() + "\n");
           '
-      - name: Publish
+      - name: GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh release create "$GITHUB_REF_NAME" release/*.zip --title "SilentBlock ${GITHUB_REF_NAME#v}" --notes-file notes.md
+
+  chrome:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/667575805085/locations/global/workloadIdentityPools/github/providers/silentblock
+          service_account: cws-publisher@clicktrack-505800.iam.gserviceaccount.com
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/chromewebstore
+      - name: Download release zips
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release download "$GITHUB_REF_NAME" --dir release
+      - name: Submit to the Chrome Web Store
+        env:
+          CWS_ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
+        run: node scripts/publish/chrome.mjs
+
+  firefox:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Download release zips
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release download "$GITHUB_REF_NAME" --dir release
+      - name: Submit to addons.mozilla.org
+        env:
+          AMO_JWT_ISSUER: ${{ secrets.AMO_JWT_ISSUER }}
+          AMO_JWT_SECRET: ${{ secrets.AMO_JWT_SECRET }}
+        run: node scripts/publish/firefox.mjs
+
+  edge:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Download release zips
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release download "$GITHUB_REF_NAME" --dir release
+      - name: Submit to Microsoft Edge Add-ons
+        env:
+          EDGE_PRODUCT_ID: ${{ secrets.EDGE_PRODUCT_ID }}
+          EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
+          EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
+        run: node scripts/publish/edge.mjs

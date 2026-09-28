@@ -265,7 +265,7 @@ function manifestFor(target) {
   };
   if (target === 'firefox') {
     m.background = { scripts: ['background/main.js'], type: 'module' };
-    m.browser_specific_settings = { gecko: { id: 'silentblock@clickclickmedia.com.au', strict_min_version: '128.0' } };
+    m.browser_specific_settings = { gecko: { id: 'silentblock@local', strict_min_version: '128.0', data_collection_permissions: { required: ['none'] } } };
     delete m.minimum_chrome_version;
   }
   return m;

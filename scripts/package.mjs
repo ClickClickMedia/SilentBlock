@@ -4,6 +4,7 @@
 import { readdir, readFile, writeFile, mkdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import zlib from 'node:zlib';
+import { execFileSync } from 'node:child_process';
 
 const root = path.resolve(import.meta.dirname, '..');
 const pkg = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8'));
@@ -88,3 +89,9 @@ for (const target of ['chrome', 'firefox']) {
   const size = (await stat(file)).size;
   console.log(`${path.relative(root, file)}  ${names.length} files, ${(size / 1024 / 1024).toFixed(1)} MB`);
 }
+
+// Source archive of the tagged tree, for store reviewers (AMO requires it for generated code).
+const source = path.join(outDir, `SilentBlock-${pkg.version}-source.zip`);
+execFileSync('git', ['archive', '--format=zip', `--output=${source}`, 'HEAD'], { cwd: root });
+console.log(`${path.relative(root, source)}  source (git archive HEAD), ${((await stat(source)).size / 1024 / 1024).toFixed(1)} MB`);
+

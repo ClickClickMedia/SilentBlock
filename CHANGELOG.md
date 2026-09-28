@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+## [2.0.1] - 2026-09-28
+
+### Fixed
+- Firefox build uses the existing add-on ID (`silentblock@local`), so it updates the AMO
+  listing instead of arriving as a new add-on, and declares that it collects no data.
+
+### Added
+- Automated store releases: pushing a version tag builds, tests and submits the new version
+  to the Chrome Web Store, Firefox Add-ons and Edge Add-ons.
+- Firefox smoke test (real Firefox) in CI and releases.
+- Licensed under GPL-3.0-or-later; privacy policy; store listing copy and generated images.
+
 ## [2.0.0] - 2026-09-28
 
 A rebuild. The 1.x engine (a hand-written list of ~226 domains plus global page patches)

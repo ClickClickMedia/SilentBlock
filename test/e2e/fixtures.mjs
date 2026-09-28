@@ -27,7 +27,7 @@ export const test = base.extend({
 
   context: async ({}, use) => {
     const context = await chromium.launchPersistentContext('', {
-      channel: 'chromium',
+      channel: process.env.SB_CHANNEL || 'chromium', // SB_CHANNEL=msedge runs the suite in Edge
       headless: true,
       args: [
         '--enable-unsafe-extension-debugging', // lets tests re-install the build over CDP
