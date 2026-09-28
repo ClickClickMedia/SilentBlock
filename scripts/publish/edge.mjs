@@ -32,5 +32,16 @@ const { res: pubRes } = await call(API, {
   method: 'POST', headers: { ...auth, 'content-type': 'application/json' },
   body: JSON.stringify({ notes: (await releaseNotes(v)).slice(0, 1500) }),
 }, 'publish');
-await waitFor(`${API}/operations/${pubRes.headers.get('location')}`, 'publish');
+try {
+  await waitFor(`${API}/operations/${pubRes.headers.get('location')}`, 'publish');
+} catch (err) {
+  // Edge takes one submission at a time. While the previous version is still being
+  // certified, the new package sits in the draft; submit it once certification finishes.
+  if (/InProgressSubmission/.test(err.message)) {
+    console.log(`edge: v${v} is uploaded to the draft, but the previous version is still in certification.`);
+    console.log(`edge: once it clears, run: gh workflow run publish.yml -f tag=v${v} -f stores=edge`);
+    process.exit(0);
+  }
+  throw err;
+}
 console.log(`edge: submitted v${v} for certification`);
