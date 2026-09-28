@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [2.0.2] - 2026-09-29
+
+### Changed
+- Filter lists refreshed (EasyList 28 Sep 23:08 UTC, EasyPrivacy, uBlock filters, URLhaus,
+  phishing and scam lists). EasyList pruned ~7,700 expired throwaway ad domains.
+- 64px icon added to the manifest (Firefox uses it on the add-ons page).
+
 ## [2.0.1] - 2026-09-28
 
 ### Fixed
