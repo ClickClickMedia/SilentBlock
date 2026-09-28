@@ -15,6 +15,7 @@ the extension and never downloads rules at runtime.
 | **Generic hiding** | The page reports its class and id names, and the service worker injects CSS for the ~27,500 generic ad and cookie-banner selectors that match. Nothing is parsed per frame for the rest. |
 | **Site-specific hiding** | ~28,000 hostnames with their own hide and restyle rules, injected per frame as it loads. |
 | **Anti-adblock** | ~8,200 site-specific scriptlets (uBO semantics: `set-constant`, `abort-on-property-read`, `prevent-setTimeout`, `json-prune` and 30 others), run in the page before its own scripts, only on the sites listed. |
+| **Pop-ups and tab-unders** | New tabs a page opens are followed for their first few hops and closed if they land on one of ~3,000 `$popup` hosts. A tab sent to an ad right after the page reopened itself in a new tab is put back. |
 | **Nag walls** | "Kill nag wall" in the popup removes an anti-adblock overlay on demand, or on every visit with "Always on this site". |
 
 Every piece of CSS is injected as a *user* stylesheet: pages cannot see it, override it or

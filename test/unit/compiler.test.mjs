@@ -202,3 +202,35 @@ test('hostname helpers', () => {
   assert.deepEqual(hostnameToMatchPatterns('x.com'), ['*://x.com/*', '*://*.x.com/*']);
   assert.ok(!isValidHostname('-bad.com') && isValidHostname('ok-1.co.uk'));
 });
+
+// ---- popups ----------------------------------------------------------------------------
+
+import { PopupCompiler, patternToRegexSource, isPopupFilter, withoutPopup } from '../../scripts/lib/popups.mjs';
+
+test('popup patterns compile to URL regexes with ABP anchors', () => {
+  const re = new RegExp(patternToRegexSource('||ads.com^'), 'i');
+  assert.ok(re.test('https://ads.com/x') && re.test('https://sub.ads.com/') && !re.test('https://notads.com/'));
+  const path = new RegExp(patternToRegexSource('/popunder/*.php'), 'i');
+  assert.ok(path.test('https://x.com/popunder/a.php') && !path.test('https://x.com/other.php'));
+});
+
+test('popup compiler splits hosts, third-party hosts, rules and exceptions', () => {
+  const c = new PopupCompiler();
+  for (const l of ['||pop.com^$popup', '||pop3.com^$popup,third-party', '||x.com/go$popup,domain=site.com', '@@*$popup,domain=mail.google.com', '||e.*^$popup,domain=e.*']) {
+    c.add(parseLine(l));
+  }
+  const out = c.emit();
+  assert.deepEqual(out.hosts, ['pop.com']);
+  assert.deepEqual(out.hosts3p, ['pop3.com']);
+  assert.equal(out.rules.length, 1);
+  assert.deepEqual(out.rules[0].slice(1), [['site.com'], [], 0]);
+  assert.deepEqual(out.allow[0].slice(1), [['mail.google.com'], [], 0]);
+});
+
+test('$script,popup filters keep their network half', () => {
+  const f = parseLine('||ads.com^$script,popup');
+  assert.ok(isPopupFilter(f));
+  const rest = withoutPopup(f);
+  assert.deepEqual(rest.options.map((o) => o.name), ['script']);
+  assert.equal(withoutPopup(parseLine('||ads.com^$popup')), null);
+});

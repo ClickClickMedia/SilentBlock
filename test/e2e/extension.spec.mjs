@@ -215,6 +215,63 @@ test.describe('nag walls', () => {
   });
 });
 
+test.describe('popups', () => {
+  const openTabs = (context) => context.pages().map((p) => p.url()).filter((u) => /landing|popup/.test(u));
+
+  test('closes a popup that lands on a $popup host', async ({ context, sw, url }) => {
+    const page = await context.newPage();
+    await page.goto(url('site.test', 'popup.html'));
+    await page.click('#openAd');
+    await page.waitForTimeout(1500);
+    expect(openTabs(context).filter((u) => u.includes('sb-popads.test'))).toEqual([]);
+  });
+
+  test('follows about:blank popups through their redirect', async ({ context, sw, url }) => {
+    const page = await context.newPage();
+    await page.goto(url('site.test', 'popup.html'));
+    await page.click('#blankThenAd');
+    await page.waitForTimeout(2000);
+    expect(openTabs(context).filter((u) => u.includes('sb-popads.test'))).toEqual([]);
+  });
+
+  test('leaves ordinary popups alone', async ({ context, sw, url }) => {
+    const page = await context.newPage();
+    await page.goto(url('site.test', 'popup.html'));
+    const popup = context.waitForEvent('page');
+    await page.click('#openOk');
+    const p = await popup;
+    await p.waitForLoadState();
+    await page.waitForTimeout(1000);
+    expect(p.isClosed()).toBe(false);
+    expect(p.url()).toContain('cdn-ok.test');
+  });
+
+  test('undoes a tab-under: the tab comes back, the copy closes', async ({ context, sw, url }) => {
+    const page = await context.newPage();
+    const start = url('site.test', 'popup.html');
+    await page.goto(start);
+    await page.click('#tabUnder');
+    await expect.poll(() => page.url(), { timeout: 5000 }).toBe(start);
+    await page.waitForTimeout(1000);
+    expect(openTabs(context).filter((u) => u.includes('sb-popads.test'))).toEqual([]);
+    expect(context.pages().filter((p) => p.url() === start)).toHaveLength(1);
+  });
+
+  test('a paused site keeps its popups', async ({ context, sw, url }) => {
+    await sw.evaluate(async () => {
+      await chrome.storage.local.set({ allowlist: ['site.test'] });
+    });
+    const page = await context.newPage();
+    await page.goto(url('site.test', 'popup.html'));
+    const popup = context.waitForEvent('page');
+    await page.click('#openAd');
+    const p = await popup;
+    await p.waitForLoadState();
+    await page.waitForTimeout(1000);
+    expect(p.isClosed()).toBe(false);
+  });
+});
+
 test.describe('global switch and categories', () => {
   test('protection off disables rulesets and unregisters every script', async ({ context, sw, extensionId, url }) => {
     const page = await context.newPage();

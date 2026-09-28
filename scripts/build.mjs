@@ -10,6 +10,7 @@ import { networkToRule, mergeRules, assignIds, ALLOW_ID_BASE } from './lib/netwo
 import { CosmeticCompiler, FLAG } from './lib/cosmetic.mjs';
 import { ScriptletCompiler } from './lib/scriptlets.mjs';
 import { RESOURCES } from './lib/resources.mjs';
+import { PopupCompiler, isPopupFilter, withoutPopup } from './lib/popups.mjs';
 import { validateSelectors, validateRegexes } from './lib/validate-selectors.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
@@ -52,6 +53,7 @@ for (const { p } of parsed) {
 const rulesByCat = Object.fromEntries(categories.map((c) => [c, []]));
 const cosmetic = new CosmeticCompiler(categories);
 const scriptlets = new ScriptletCompiler(categories);
+const popups = Object.fromEntries(categories.map((c) => [c, new PopupCompiler()]));
 const netStats = {};
 const bump = (o, k) => { o[k] = (o[k] || 0) + 1; };
 
@@ -61,7 +63,14 @@ for (const { list, p } of parsed) {
   if (p.type === 'cosmetic') { cosmetic.add(cat, p); continue; }
   if (p.type === 'scriptlet') { scriptlets.add(cat, p); continue; }
   if (badfilters.has(badfilterKey(p))) { bump(netStats, 'badfiltered'); continue; }
-  const r = networkToRule(p, RESOURCES);
+  let net = p;
+  if (isPopupFilter(net)) {
+    // DNR cannot block popups; the service worker closes them (src/background/popups.js).
+    popups[cat].add(net);
+    net = withoutPopup(net); // `$script,popup` also blocks the script
+    if (!net) { bump(netStats, 'popup'); continue; }
+  }
+  const r = networkToRule(net, RESOURCES);
   if (r.skip) { bump(netStats, `skip:${r.skip}`); continue; }
   if (r.flags) {
     for (const h of r.flags.hosts) {
@@ -151,6 +160,13 @@ out['registration.json'] = {
   scriptlets: sl.registrations,
 };
 
+const popupSummary = {};
+for (const cat of categories) {
+  const data = popups[cat].emit();
+  out[`popups/${cat}.json`] = data;
+  popupSummary[cat] = { hosts: data.hosts.length + data.hosts3p.length, rules: data.rules.length, allow: data.allow.length };
+}
+
 out['content/unwall.js'] = `// Built from src/shared/unwall-core.js. Injected on demand by the popup and on
 // per-site "always kill nag walls" hosts. Wrapped so a second injection is harmless.
 (() => {
@@ -172,6 +188,7 @@ const meta = {
   rulesets: rulesetSummary,
   cosmetic: cos.summary,
   scriptlets: sl.summary,
+  popups: popupSummary,
   allowIdBase: ALLOW_ID_BASE,
 };
 out['meta.json'] = meta;
@@ -222,6 +239,7 @@ console.table(rulesetSummary);
 console.log(`Static rules: ${totalRules} (Chrome guarantees 30000 per extension)`);
 console.table(cos.summary);
 console.table(sl.summary);
+console.table(popupSummary);
 const top = (o) => Object.entries(o).sort((a, b) => b[1] - a[1]).slice(0, 12).map(([k, v]) => `${k}=${v}`).join('  ');
 console.log(`network: ${top(netStats)}`);
 console.log(`cosmetic: ${top(cosmetic.stats)}`);

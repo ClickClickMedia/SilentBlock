@@ -53,3 +53,10 @@
 @@||sentry-cdn.com^$domain=sentry.io
 @@||onesignal.com^$domain=onesignal.com
 @@||semrush.com^$domain=semrush.com
+
+! ---------------------------------------------------------------------------
+! Popups: never close tabs opened from webmail or the ad consoles. Tracked
+! links there go through ad click-trackers (doubleclick.net and friends) in a
+! new tab, and clicking them is the whole point.
+! ---------------------------------------------------------------------------
+@@*$popup,domain=mail.google.com|outlook.live.com|outlook.office.com|outlook.office365.com|ads.google.com|admanager.google.com|analytics.google.com|tagassistant.google.com|business.facebook.com|adsmanager.facebook.com|ads.microsoft.com

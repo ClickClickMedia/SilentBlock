@@ -5,6 +5,7 @@
 import { loadState, saveState, migrate, allowlistEntryFor, isPaused, normalise } from './state.js';
 import { applyAll, applyAction, iconPaths, desiredContentScripts } from './apply.js';
 import { onCommitted, onTokens, rememberTop, forgetTab } from './cosmetic.js';
+import { onCreatedNavigationTarget, onTopNavigation, onNavigationError, forgetPopupTab } from './popups.js';
 import { getMeta } from './data.js';
 import { hostnameAndParents, normaliseHostname } from '../shared/hostnames.js';
 
@@ -30,10 +31,21 @@ chrome.runtime.onStartup.addListener(async () => {
 
 // ---- navigation ---------------------------------------------------------------------
 
+chrome.webNavigation.onCreatedNavigationTarget.addListener(async (details) => {
+  await onCreatedNavigationTarget(details, await loadState());
+});
+
+chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
+  if (details.frameId === 0) await onTopNavigation(details.tabId, details.url, await loadState());
+});
+
+chrome.webNavigation.onErrorOccurred.addListener((details) => { onNavigationError(details); });
+
 chrome.webNavigation.onCommitted.addListener(async (details) => {
   if (!/^https?:/.test(details.url)) return;
   const state = await loadState();
   if (details.frameId === 0) {
+    await onTopNavigation(details.tabId, details.url, state);
     const hostname = new URL(details.url).hostname;
     rememberTop(details.tabId, hostname);
     chrome.storage.session.set({ [`nav:${details.tabId}`]: details.timeStamp }).catch(() => {});
@@ -46,6 +58,7 @@ chrome.webNavigation.onCommitted.addListener(async (details) => {
 
 chrome.tabs.onRemoved.addListener((tabId) => {
   forgetTab(tabId);
+  forgetPopupTab(tabId);
   chrome.storage.session.remove(`nav:${tabId}`).catch(() => {});
 });
 

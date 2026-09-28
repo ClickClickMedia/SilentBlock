@@ -22,3 +22,6 @@ sb-selftest.test##+js(nostif, sbSelfTestTimer)
 sb-exception.test#@#.sb-generic-probe
 sb-exception.test#@#div[data-sb-generic-probe]
 @@||sb-ghide.test^$ghide
+
+! Popups
+||sb-popads.test^$popup

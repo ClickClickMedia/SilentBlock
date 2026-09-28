@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+<head><title>popup</title></head>
+<body>
+  <button id="openAd">open ad popup</button>
+  <button id="openOk">open ordinary popup</button>
+  <button id="blankThenAd">about:blank, then redirect to ad</button>
+  <button id="tabUnder">tab-under</button>
+  <script>
+    var base = 'http://{host}:' + location.port + '/page/landing.html';
+    var at = function (host) { return base.replace('{host}', host); };
+    document.getElementById('openAd').onclick = function () { window.open(at('sb-popads.test')); };
+    document.getElementById('openOk').onclick = function () { window.open(at('cdn-ok.test')); };
+    document.getElementById('blankThenAd').onclick = function () {
+      var w = window.open('about:blank');
+      setTimeout(function () { w.location.href = at('sb-popads.test'); }, 100);
+    };
+    // Classic tab-under: reopen this page in a new tab, send the current tab to the ad.
+    document.getElementById('tabUnder').onclick = function () {
+      window.open(location.href);
+      location.href = at('sb-popads.test');
+    };
+  </script>
+</body>
+</html>

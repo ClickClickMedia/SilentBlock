@@ -18,6 +18,10 @@ is replaced by the real filter lists compiled into Chrome's native blocker.
   its scripts (~8,200 filters).
 - Redirect stubs for GPT, AdSense, analytics.js, ga.js, gtag/GTM, apstag, comScore and
   noop files, so pages that wait on ad or analytics callbacks keep working.
+- Popup and tab-under blocking from the lists' 3,000 `$popup` filters, which DNR cannot
+  express: new tabs a page opens are followed for their first hops and closed if they land
+  on an ad host; a tab sent to an ad right after opening itself in a new tab is sent back
+  and the copy closed. Tabs opened from webmail and ad consoles are never closed.
 - Popup: per-page blocked-request count, "Kill nag wall", "Always on this site", reload
   prompt, clear paused state (including when a parent domain is paused).
 - Options page: filter categories, paused and nag-wall site lists, badge count, settings
