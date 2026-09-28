@@ -1,0 +1,9 @@
+<!doctype html>
+<html>
+<head><title>wall in a frame</title></head>
+<body>
+  <p>Host page</p>
+  <iframe id="f" width="800" height="500"></iframe>
+  <script>document.getElementById('f').src = 'http://frame-host.test:' + location.port + '/page/wall.html';</script>
+</body>
+</html>

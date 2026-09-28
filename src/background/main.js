@@ -159,7 +159,8 @@ async function handle(msg) {
     }
 
     case 'unwallNow': {
-      await chrome.scripting.executeScript({ target: { tabId: msg.tabId }, files: ['content/unwall.js'] });
+      // Every frame: walls also turn up inside embedded players and sandboxed page frames.
+      await chrome.scripting.executeScript({ target: { tabId: msg.tabId, allFrames: true }, files: ['content/unwall.js'] });
       return { ok: true };
     }
 

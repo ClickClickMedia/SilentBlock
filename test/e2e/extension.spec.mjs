@@ -394,6 +394,21 @@ test.describe('malware and scams', () => {
   });
 });
 
+test.describe('nag walls in frames', () => {
+  test('"Kill nag wall" also clears a wall inside a cross-origin frame', async ({ context, sw, extensionId, url }) => {
+    const page = await context.newPage();
+    await page.goto(url('site.test', 'wall-frame.html'));
+    const inner = () => page.frames().find((f) => f.url().includes('frame-host.test') && f.url().includes('wall.html'));
+    await expect.poll(() => Boolean(inner())).toBe(true);
+    const frame = inner();
+    await frame.waitForLoadState();
+    const tabId = await tabIdFor(sw, '*://site.test/*');
+    const popup = await openPopup(context, extensionId, tabId);
+    await popup.locator('#unwall').click();
+    await expect.poll(() => frame.$eval('#wall', (el) => getComputedStyle(el).display)).toBe('none');
+  });
+});
+
 test.describe('global switch and categories', () => {
   test('protection off disables rulesets and unregisters every script', async ({ context, sw, extensionId, url }) => {
     const page = await context.newPage();
