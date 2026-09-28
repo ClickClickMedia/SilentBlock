@@ -142,8 +142,8 @@ for (const [name, html] of Object.entries(pages)) {
   await page.close();
   console.log(`${name}.png  ${w}x${h}`);
 }
-// Store icons: Edge wants 300x300, Chrome's listing icon is 128x128.
-for (const [name, size] of [['logo-300', 300], ['icon-128', 128]]) {
+// Store icons: Edge wants 300x300, Chrome's listing icon is 128x128, Firefox asks for 32 and 64.
+for (const [name, size] of [['logo-300', 300], ['icon-128', 128], ['icon-64', 64], ['icon-32', 32]]) {
   const page = await browser.newPage({ viewport: { width: size, height: size } });
   await page.setContent(`<body style="margin:0;background:transparent"><img src="${ICON.idle}" width="${size}" height="${size}" style="display:block"></body>`);
   await page.locator('img').screenshot({ path: path.join(out, `${name}.png`), omitBackground: true });
