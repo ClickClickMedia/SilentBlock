@@ -32,7 +32,9 @@ try {
 const clPath = path.join(root, 'CHANGELOG.md');
 const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Australia/Sydney' }).format(new Date());
 let cl = await readFile(clPath, 'utf8');
-if (cl.includes('## [Unreleased]')) {
+if (cl.includes(`## [${next}]`)) {
+  console.log(`CHANGELOG.md already has a ${next} entry; left as is.`);
+} else if (cl.includes('## [Unreleased]')) {
   cl = cl.replace('## [Unreleased]', `## [Unreleased]\n\n## [${next}] - ${today}`);
   await writeFile(clPath, cl);
 } else {

@@ -135,8 +135,20 @@ git add package.json package-lock.json CHANGELOG.md
 git commit -m "Release vX.Y.Z" && git tag vX.Y.Z && git push --follow-tags
 ```
 
-Pushing the tag runs `.github/workflows/release.yml`, which builds, tests and attaches both
-zips to a GitHub release.
+Pushing the tag runs `.github/workflows/release.yml`: build, full tests (Chrome and a Firefox
+smoke test), a GitHub release with the Chrome, Firefox and source zips, then a submission to
+each store it has credentials for. Every store reviews the upload before users get it.
+
+| Store | Item | Credentials |
+|---|---|---|
+| Chrome Web Store | `accdpphckockpflaggbplikpmaknioao` | None stored: keyless login from GitHub Actions to the `cws-publisher` service account (Workload Identity Federation in `clicktrack-505800`, tags only) |
+| Firefox (AMO) | `silentblock@local` | Repo secrets `AMO_JWT_ISSUER`, `AMO_JWT_SECRET` |
+| Microsoft Edge | `hhdolnhpfeeipbomjfkalbhegkakbkmo` | Repo secrets `EDGE_PRODUCT_ID`, `EDGE_CLIENT_ID`, `EDGE_API_KEY` |
+
+A store with no credentials is skipped. The same scripts run locally: `npm run package`, then
+`npm run publish:chrome` (signs in through your gcloud login), `publish:firefox` or
+`publish:edge` with the variables above. `npm run store:status` shows what Chrome has.
+Listing text and images: `docs/store-listing.md` and `npm run store:art`.
 
 ## Filter lists and licences
 
@@ -148,6 +160,5 @@ zips to a GitHub release.
 | Phishing URL Blocklist | CC BY-SA 4.0 (sources: OpenPhish, PhishTank, IPThreat) |
 | Scam Blocklist by DurableNapkin | MIT |
 
-The lists are bundled as data in their original terms. Publishing SilentBlock outside CCM
-(for example on the public Chrome Web Store) means distributing GPL-3.0 material, so check
-the licence position first.
+SilentBlock itself is licensed under the [GNU GPL v3.0 or later](LICENSE). The bundled
+filter lists keep their own licences, listed above. Privacy policy: [PRIVACY.md](PRIVACY.md).
