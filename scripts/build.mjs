@@ -18,7 +18,7 @@ const args = new Set(process.argv.slice(2));
 const VALIDATE = !args.has('--no-validate');
 
 // DNR allows 1000 regex rules across all enabled rulesets; keep headroom.
-const REGEX_CAP = { core: 50, ads: 600, privacy: 250, annoyances: 50 };
+const REGEX_CAP = { core: 50, ads: 550, privacy: 250, annoyances: 50, security: 50 };
 
 const pkg = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8'));
 const config = JSON.parse(await readFile(path.join(root, 'filters/lists.json'), 'utf8'));
@@ -54,6 +54,7 @@ const rulesByCat = Object.fromEntries(categories.map((c) => [c, []]));
 const cosmetic = new CosmeticCompiler(categories);
 const scriptlets = new ScriptletCompiler(categories);
 const popups = Object.fromEntries(categories.map((c) => [c, new PopupCompiler()]));
+const securityUrls = {}; // host -> Set(path prefix)
 const netStats = {};
 const bump = (o, k) => { o[k] = (o[k] || 0) + 1; };
 
@@ -78,6 +79,21 @@ for (const { list, p } of parsed) {
       if (r.flags.ehide) cosmetic.addFlag(h, FLAG.ehide);
       if (r.flags.shide) cosmetic.addFlag(h, FLAG.shide);
     }
+  }
+  if (r.rule && cat === 'security') {
+    const c = r.rule.condition;
+    // Phishing and malware lists name ~35k individual page URLs. As DNR rules they would
+    // blow Chrome's 30k static-rule guarantee, and they only matter for pages you open, so
+    // the service worker checks top-level navigations against them instead.
+    const m = /^\|\|([a-z0-9._-]+)(\/[^*^|]*)\^?$/i.exec(c.urlFilter || '');
+    if (r.rule.action.type === 'block' && m && (!c.resourceTypes || c.resourceTypes.includes('main_frame'))) {
+      const host = m[1].toLowerCase();
+      (securityUrls[host] ||= new Set()).add(m[2]);
+      bump(netStats, 'security-url');
+      continue;
+    }
+    // Security beats list exceptions and the user's pause (1000): pausing is about ads.
+    r.rule.priority = r.rule.action.type === 'allow' || r.rule.action.type === 'allowAllRequests' ? 2001 : 2000;
   }
   if (r.rule) { rulesByCat[cat].push(r.rule); bump(netStats, 'rule'); }
 }
@@ -160,6 +176,18 @@ out['registration.json'] = {
   scriptlets: sl.registrations,
 };
 
+// Security lookup data for the service worker: every blocked host (to colour the icon red
+// when a page touches one, and to show the warning page) and the page-URL list above.
+if (rulesByCat.security) {
+  const hosts = new Set();
+  for (const r of rulesByCat.security) {
+    if (r.action.type === 'block' && r.condition.requestDomains) r.condition.requestDomains.forEach((h) => hosts.add(h));
+  }
+  out['security/hosts.json'] = [...hosts].sort();
+  out['security/urls.json'] = Object.fromEntries(Object.entries(securityUrls).sort().map(([h, set]) => [h, [...set].sort()]));
+  rulesetSummary.security.pageUrls = Object.values(securityUrls).reduce((n, s) => n + s.size, 0);
+}
+
 const popupSummary = {};
 for (const cat of categories) {
   const data = popups[cat].emit();
@@ -171,7 +199,7 @@ out['content/unwall.js'] = `// Built from src/shared/unwall-core.js. Injected on
 // per-site "always kill nag walls" hosts. Wrapped so a second injection is harmless.
 (() => {
 ${unwallCore}
-unwallWatch(15000);
+unwallWatch(15000, () => chrome.runtime.sendMessage({ type: 'wall' }).catch(() => {}));
 })();
 `;
 
@@ -219,7 +247,7 @@ for (const target of ['chrome', 'firefox']) {
   const dist = path.join(root, 'dist', target);
   await rm(dist, { recursive: true, force: true });
   await mkdir(dist, { recursive: true });
-  for (const dir of ['background', 'popup', 'options', 'content', 'shared', 'icons', 'resources']) {
+  for (const dir of ['background', 'popup', 'options', 'warning', 'content', 'shared', 'icons', 'resources']) {
     await cp(path.join(root, 'src', dir), path.join(dist, dir), { recursive: true });
   }
   await rm(path.join(dist, 'shared/unwall-core.js'), { force: true });

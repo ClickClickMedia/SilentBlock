@@ -25,6 +25,7 @@ function render() {
   root.dataset.enabled = String(info.enabled);
   root.dataset.supported = String(Boolean(info.supported));
   root.dataset.paused = String(Boolean(info.pausedBy));
+  if (!info.supported || !info.enabled) $('stateIcon').src = `../icons/${info.enabled ? 'idle' : 'paused'}-32.png`;
   $('version').textContent = `v${info.version}`;
 
   $('enabled').checked = info.enabled;
@@ -43,8 +44,34 @@ function render() {
   else if (info.pausedBy) hint = 'Paused on this site';
   $('siteHint').textContent = hint;
 
-  $('blocked').textContent = info.blocked === null || info.blocked === undefined ? '-' : String(info.blocked);
   $('unwallAlways').checked = Boolean(info.unwall);
+  renderStatus(info.status);
+}
+
+const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+
+function renderStatus(st) {
+  if (!st) return;
+  root.dataset.level = st.level;
+  $('stateIcon').src = `../icons/${st.icon}-32.png`;
+  $('blocked').textContent = String(st.level === 'danger' ? st.danger : st.blocked);
+  $('cap').textContent = st.level === 'danger' ? 'dangerous requests blocked' : 'ads and trackers blocked';
+  let text;
+  if (st.level === 'danger') {
+    text = `Known malware or scam hosts here: ${st.dangerHosts.join(', ')}`;
+    if (st.blocked) text += `. Also blocked ${plural(st.blocked, 'ad or tracker', 'ads and trackers')}.`;
+  } else if (st.level === 'caution') {
+    const bits = [];
+    if (st.popups) bits.push(`stopped ${plural(st.popups, 'pop-up', 'pop-ups')}`);
+    if (st.walls) bits.push('removed a nag wall');
+    text = `Pushy site: ${bits.join(' and ')}.`;
+  } else if (st.level === 'protected') {
+    text = 'Protected: ads and trackers stopped before they loaded.';
+  } else {
+    text = 'Nothing to block on this page.';
+  }
+  if (st.icon === 'paused') text = info.enabled ? 'Paused here. Malware protection is still on.' : text;
+  $('statusText').textContent = text;
 }
 
 async function refresh() {
@@ -98,4 +125,6 @@ $('settings').addEventListener('click', (e) => {
 
 tabId = await currentTabId();
 await refresh();
+// Counts climb while the page loads; keep the popup current while it is open.
+setInterval(() => { refresh().catch(() => {}); }, 1000);
 requestAnimationFrame(() => requestAnimationFrame(() => document.documentElement.classList.add('animate')));

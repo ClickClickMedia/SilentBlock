@@ -19,6 +19,11 @@
       "title": "Cookie banners",
       "description": "Hides cookie consent pop-ups without breaking the page underneath.",
       "default": true
+    },
+    "security": {
+      "title": "Malware & scams",
+      "description": "Known malware, phishing and scam hosts. Stays on for paused sites: pausing is about ads, not safety.",
+      "default": true
     }
   },
   "lists": [
@@ -115,6 +120,44 @@
       "title": "SilentBlock cookie banners",
       "category": "annoyances",
       "file": "filters/silentblock-annoyances.txt"
+    },
+    {
+      "id": "ubo-badware",
+      "title": "uBlock filters - Badware risks",
+      "category": "security",
+      "file": "filters/upstream/ubo-badware.txt",
+      "url": "https://ublockorigin.github.io/uAssets/filters/badware.min.txt",
+      "license": "GPL-3.0"
+    },
+    {
+      "id": "urlhaus",
+      "title": "Malicious URL Blocklist (URLhaus)",
+      "category": "security",
+      "file": "filters/upstream/urlhaus.txt",
+      "url": "https://malware-filter.gitlab.io/malware-filter/urlhaus-filter-ag-online.txt",
+      "license": "CC0 / MIT"
+    },
+    {
+      "id": "phishing",
+      "title": "Phishing URL Blocklist",
+      "category": "security",
+      "file": "filters/upstream/phishing.txt",
+      "url": "https://malware-filter.gitlab.io/malware-filter/phishing-filter-ag.txt",
+      "license": "CC BY-SA 4.0"
+    },
+    {
+      "id": "scam",
+      "title": "Scam Blocklist by DurableNapkin",
+      "category": "security",
+      "file": "filters/upstream/scam.txt",
+      "url": "https://raw.githubusercontent.com/durablenapkin/scamblocklist/master/adguard.txt",
+      "license": "MIT"
+    },
+    {
+      "id": "silentblock-security",
+      "title": "SilentBlock security",
+      "category": "security",
+      "file": "filters/silentblock-security.txt"
     }
   ]
 }

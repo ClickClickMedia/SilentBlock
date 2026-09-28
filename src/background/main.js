@@ -2,10 +2,12 @@
 //
 // All listeners are registered synchronously at top level so Chrome can wake the worker
 // for them. State lives in chrome.storage; nothing here relies on the worker staying alive.
-import { loadState, saveState, migrate, allowlistEntryFor, isPaused, normalise } from './state.js';
-import { applyAll, applyAction, iconPaths, desiredContentScripts } from './apply.js';
+import { loadState, saveState, migrate, allowlistEntryFor, normalise } from './state.js';
+import { applyAll, applyAction, desiredContentScripts } from './apply.js';
 import { onCommitted, onTokens, rememberTop, forgetTab } from './cosmetic.js';
-import { onCreatedNavigationTarget, onTopNavigation, onNavigationError, forgetPopupTab } from './popups.js';
+import { onCreatedNavigationTarget, onTopNavigation, onNavigationError, forgetPopupTab, noteCommitted, lastUrlOf } from './popups.js';
+import { resetTab, record, getStatus, levelOf, iconStateFor, forgetStatus } from './status.js';
+import { checkNavigation, dangerHost, securityOn, bypass } from './security.js';
 import { getMeta } from './data.js';
 import { hostnameAndParents, normaliseHostname } from '../shared/hostnames.js';
 
@@ -31,27 +33,39 @@ chrome.runtime.onStartup.addListener(async () => {
 
 // ---- navigation ---------------------------------------------------------------------
 
-chrome.webNavigation.onCreatedNavigationTarget.addListener(async (details) => {
-  await onCreatedNavigationTarget(details, await loadState());
+chrome.webNavigation.onCreatedNavigationTarget.addListener((details) => {
+  // Pass the promise, not the state: registration must happen before any await.
+  onCreatedNavigationTarget(details, loadState());
 });
 
 chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
-  if (details.frameId === 0) await onTopNavigation(details.tabId, details.url, await loadState());
+  if (details.frameId !== 0) return;
+  const back = lastUrlOf(details.tabId);
+  const state = await loadState();
+  const host = await checkNavigation(details.tabId, details.url, state, back);
+  if (host) { await record(details.tabId, 'danger', host, state); return; }
+  await onTopNavigation(details.tabId, details.url, state);
 });
 
-chrome.webNavigation.onErrorOccurred.addListener((details) => { onNavigationError(details); });
+chrome.webNavigation.onErrorOccurred.addListener(async (details) => {
+  const state = await loadState();
+  onNavigationError(details, state);
+  // Backstop: DNR blocked a listed page before the navigation check could redirect it.
+  if (details.frameId === 0 && /BLOCKED_BY_CLIENT/.test(details.error || '')) {
+    const host = await checkNavigation(details.tabId, details.url, state, lastUrlOf(details.tabId));
+    if (host) await record(details.tabId, 'danger', host, state);
+  }
+});
 
 chrome.webNavigation.onCommitted.addListener(async (details) => {
   if (!/^https?:/.test(details.url)) return;
+  if (details.frameId === 0) noteCommitted(details.tabId, details.url); // before any await
   const state = await loadState();
   if (details.frameId === 0) {
     await onTopNavigation(details.tabId, details.url, state);
     const hostname = new URL(details.url).hostname;
     rememberTop(details.tabId, hostname);
-    chrome.storage.session.set({ [`nav:${details.tabId}`]: details.timeStamp }).catch(() => {});
-    // Per-tab icon: grey on paused sites so it is obvious why ads are showing.
-    const on = state.enabled && !isPaused(hostname, state);
-    chrome.action.setIcon({ tabId: details.tabId, path: iconPaths(on) }).catch(() => {});
+    await resetTab(details.tabId, hostname, state);
   }
   await onCommitted(details, state);
 });
@@ -59,8 +73,26 @@ chrome.webNavigation.onCommitted.addListener(async (details) => {
 chrome.tabs.onRemoved.addListener((tabId) => {
   forgetTab(tabId);
   forgetPopupTab(tabId);
-  chrome.storage.session.remove(`nav:${tabId}`).catch(() => {});
+  forgetStatus(tabId);
 });
+
+// ---- live request watching (read-only) -----------------------------------------------
+
+// Every request SilentBlock (or anything else) blocked shows up here as ERR_BLOCKED_BY_CLIENT.
+chrome.webRequest.onErrorOccurred.addListener(async (d) => {
+  if (d.tabId < 0 || d.type === 'main_frame' || !/BLOCKED_BY_CLIENT/.test(d.error)) return;
+  const state = await loadState();
+  let host = '';
+  try { host = new URL(d.url).hostname; } catch { return; }
+  const listed = securityOn(state) ? await dangerHost(host) : null;
+  await record(d.tabId, listed ? 'danger' : 'blocked', listed, state);
+}, { urls: ['<all_urls>'] });
+
+// Requests swapped for a local stub (GPT, gtag, analytics.js, ...) were blocked too.
+chrome.webRequest.onBeforeRedirect.addListener(async (d) => {
+  if (d.tabId < 0 || !/^(chrome|moz)-extension:\/\/[^/]+\/resources\//.test(d.redirectUrl)) return;
+  await record(d.tabId, 'blocked', null, await loadState());
+}, { urls: ['<all_urls>'] });
 
 // ---- messages -----------------------------------------------------------------------
 
@@ -68,28 +100,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (!message || typeof message.type !== 'string' || sender.id !== chrome.runtime.id) return false;
   const fromExtensionPage = typeof sender.url === 'string' && sender.url.startsWith(EXTENSION_ORIGIN);
 
-  // The only thing a content script may say: "these classes/ids are on my page".
-  if (message.type === 'tokens') {
-    if (!fromExtensionPage && sender.tab) loadState().then((s) => onTokens(message, sender, s)).catch(() => {});
+  // Content scripts may say two things: "these classes/ids are on my page", and
+  // "I removed a nag wall". Neither changes settings.
+  if (!fromExtensionPage && sender.tab) {
+    if (message.type === 'tokens') loadState().then((s) => onTokens(message, sender, s)).catch(() => {});
+    if (message.type === 'wall') loadState().then((s) => record(sender.tab.id, 'wall', null, s)).catch(() => {});
     return false;
   }
 
-  // Everything else changes settings, so it must come from our own popup or options page.
+  // Everything else must come from our own popup, options or warning page.
   if (!fromExtensionPage) return false;
   handle(message).then(sendResponse, (err) => sendResponse({ error: String(err?.message || err) }));
   return true;
 });
-
-async function blockedCount(tabId) {
-  const [meta, session] = await Promise.all([getMeta(), chrome.storage.session.get(`nav:${tabId}`)]);
-  const minTimeStamp = session[`nav:${tabId}`] || 0;
-  try {
-    const { rulesMatchedInfo } = await chrome.declarativeNetRequest.getMatchedRules({ tabId, minTimeStamp });
-    return rulesMatchedInfo.filter((m) => m.rule.rulesetId !== '_dynamic' && m.rule.ruleId < meta.allowIdBase).length;
-  } catch {
-    return null; // no activeTab grant for this tab
-  }
-}
 
 async function tabInfo(tabId) {
   let tab;
@@ -106,9 +129,10 @@ async function handle(msg) {
       const [state, meta, info] = await Promise.all([loadState(), getMeta(), tabInfo(msg.tabId)]);
       const out = { enabled: state.enabled, version: meta.version, ...info };
       if (info.supported) {
+        const status = await getStatus(msg.tabId);
         out.pausedBy = allowlistEntryFor(info.hostname, state);
         out.unwall = hostnameAndParents(info.hostname).some((h) => state.unwallSites.includes(h));
-        out.blocked = await blockedCount(msg.tabId);
+        out.status = { ...status, level: levelOf(status), icon: iconStateFor({ ...status, host: info.hostname }, state) };
       }
       return out;
     }
@@ -130,7 +154,7 @@ async function handle(msg) {
         ? [...cur.allowlist, hostname]
         : cur.allowlist.filter((h) => !covering.has(h));
       const state = await saveState({ allowlist });
-      await applyAll(state, { dynamic: true, scripts: true });
+      await applyAll(state, { dynamic: true, scripts: true, action: true });
       return { ok: true, pausedBy: allowlistEntryFor(hostname, state) };
     }
 
@@ -149,6 +173,9 @@ async function handle(msg) {
       await applyAll(state, { scripts: true });
       return { ok: true };
     }
+
+    case 'security:bypass':
+      return { url: await bypass(msg.url) };
 
     case 'settings:get': {
       const [state, meta] = await Promise.all([loadState(), getMeta()]);

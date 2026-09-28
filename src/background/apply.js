@@ -7,15 +7,12 @@
 // v1 used a DOM event any page could fire to switch SilentBlock off.
 import { hostnameToMatchPatterns } from '../shared/hostnames.js';
 import { getMeta, getRegistration } from './data.js';
+import { iconPaths, repaintAll } from './status.js';
 
 export const ALLOWLIST_RULE_ID = 1;
 export const ALLOWLIST_PRIORITY = 1000;
 const HTTP = ['http://*/*', 'https://*/*'];
 
-export function iconPaths(on) {
-  const s = on ? 'on' : 'off';
-  return { 16: `/icons/icon-${s}-16.png`, 48: `/icons/icon-${s}-48.png`, 128: `/icons/icon-${s}-128.png` };
-}
 
 export function activeCategories(state, meta) {
   if (!state.enabled) return [];
@@ -149,8 +146,10 @@ async function applyContentScripts(state) {
 }
 
 export async function applyAction(state) {
-  await chrome.action.setIcon({ path: iconPaths(state.enabled) });
+  // Global default (new tabs, pages we cannot touch); each tab is then painted by status.js.
+  await chrome.action.setIcon({ path: iconPaths(state.enabled ? 'idle' : 'paused') });
   await chrome.action.setTitle({ title: state.enabled ? 'SilentBlock' : 'SilentBlock (off)' });
+  await repaintAll(state).catch(() => {});
   try {
     await chrome.declarativeNetRequest.setExtensionActionOptions({ displayActionCountAsBadgeText: state.enabled && state.badge });
   } catch { /* not supported everywhere */ }

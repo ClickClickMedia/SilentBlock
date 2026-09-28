@@ -22,6 +22,16 @@ is replaced by the real filter lists compiled into Chrome's native blocker.
   express: new tabs a page opens are followed for their first hops and closed if they land
   on an ad host; a tab sent to an ad right after opening itself in a new tab is sent back
   and the copy closed. Tabs opened from webmail and ad consoles are never closed.
+- Malware and scam protection (new "Malware & scams" category): uBO Badware, URLhaus,
+  the Phishing URL Blocklist and DurableNapkin's scam list. ~46,000 hosts are blocked by
+  DNR above list exceptions and above a paused site; ~36,000 page URLs (too many for DNR)
+  are checked on each navigation. Listed pages show a warning page with "Back to safety"
+  and "Continue anyway" (allowed until the browser closes). No API keys, no lookups.
+- Toolbar icon shows the page's status: slate blue (nothing to block), green (ads and
+  trackers blocked), amber (pop-up, tab-under or nag wall dealt with), red (malware or
+  scam host blocked), grey (paused or off). Counts are live, from read-only request
+  watching. Can be turned off in settings.
+- New icon: the Tidewater shield, with the finger cut through so the toolbar shows through it.
 - Popup: per-page blocked-request count, "Kill nag wall", "Always on this site", reload
   prompt, clear paused state (including when a parent domain is paused).
 - Options page: filter categories, paused and nag-wall site lists, badge count, settings
@@ -57,8 +67,9 @@ is replaced by the real filter lists compiled into Chrome's native blocker.
 - Dropped rules that broke real functionality: Chargebee (checkout), Piano, TinyPass,
   Pelcro and Poool (subscriber logins), AMP, the IMA SDK, Branch deep links, consent
   platforms, and error monitoring.
-- Permissions: removed `tabs`, `notifications`, `alarms` and
-  `declarativeNetRequestFeedback`; added `scripting` and `webNavigation`.
+- Permissions: removed `tabs`, `notifications`, `alarms`, `activeTab` and
+  `declarativeNetRequestFeedback`; added `scripting`, `webNavigation` and `webRequest`
+  (read-only, for live counts).
 - Repository moved to `ClickClickMedia/SilentBlock`.
 
 ## [1.6.0] - 2026-03-30

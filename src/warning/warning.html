@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dangerous site blocked</title>
+  <link rel="stylesheet" href="../shared/ui.css">
+  <link rel="stylesheet" href="warning.css">
+</head>
+<body>
+  <main class="warn">
+    <img class="mark" src="../icons/danger-128.png" width="96" height="96" alt="">
+    <h1>SilentBlock stopped this page</h1>
+    <p class="host" id="host">&nbsp;</p>
+    <p class="why">This site is on a list of known malware, phishing or scam sites. Pages like this try to steal passwords and card details, or install software you didn't ask for.</p>
+    <p class="url" id="url"></p>
+    <div class="actions">
+      <button class="btn primary" id="back" type="button">Back to safety</button>
+      <button class="link" id="proceed" type="button">Continue to the site anyway</button>
+    </div>
+    <p class="fine" id="fine">If you continue, SilentBlock allows this site until you close the browser.</p>
+  </main>
+  <script type="module" src="warning.js"></script>
+</body>
+</html>

@@ -9,9 +9,7 @@
 <body>
   <main class="popup" id="popup" data-state="loading">
     <header class="head">
-      <svg class="shield" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-        <path fill="currentColor" d="M12 1 3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 2.18 7 3.12v4.7c0 4.67-3.13 9.04-7 10.2-3.87-1.16-7-5.53-7-10.2V6.3l7-3.12z"/>
-      </svg>
+      <img class="shield" id="stateIcon" src="../icons/idle-32.png" width="22" height="22" alt="">
       <span class="brand">SilentBlock</span>
       <span class="version" id="version"></span>
     </header>
@@ -43,8 +41,8 @@
     </section>
 
     <section class="stat" id="stat">
-      <span class="num" id="blocked">0</span>
-      <span class="cap">requests blocked on this page</span>
+      <div class="count"><span class="num" id="blocked">0</span><span class="cap" id="cap">blocked on this page</span></div>
+      <p class="status-line" id="statusLine"><span class="dot"></span><span id="statusText">&nbsp;</span></p>
     </section>
 
     <section class="actions" id="actions">

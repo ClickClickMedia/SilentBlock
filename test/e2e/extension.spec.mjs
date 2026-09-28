@@ -9,7 +9,7 @@ test.describe('install', () => {
       scripts: (await chrome.scripting.getRegisteredContentScripts()).map((s) => s.id),
       state: await chrome.storage.local.get(null),
     }));
-    expect(r.rulesets).toEqual(['ads', 'annoyances', 'core', 'privacy']);
+    expect(r.rulesets).toEqual(['ads', 'annoyances', 'core', 'privacy', 'security']);
     expect(r.scripts).toContain('sb-tokens');
     expect(r.scripts).toContain('sb-generic-ads');
     expect(r.scripts.some((id) => id.startsWith('sb-sl-core-'))).toBe(true);
@@ -194,7 +194,7 @@ test.describe('settings survive updates', () => {
     const r = await snapshot(page);
     expect(r.state).toEqual({
       schema: 2, enabled: true, allowlist: ['old.test', 'www.example.com'],
-      categories: { ads: true, privacy: true, annoyances: true }, unwallSites: [], badge: false,
+      categories: { ads: true, privacy: true, annoyances: true, security: true }, unwallSites: [], badge: false, statusIcon: true,
     });
     expect(r.dynamic.map((d) => d.id)).toEqual([1]);
   });
@@ -272,6 +272,124 @@ test.describe('popups', () => {
   });
 });
 
+test.describe('page status colours', () => {
+  async function statusOf(context, extensionId, sw, pattern) {
+    const tabId = await tabIdFor(sw, pattern);
+    const popup = await openPopup(context, extensionId, tabId);
+    await popup.waitForTimeout(300);
+    const r = {
+      level: await popup.locator('#popup').getAttribute('data-level'),
+      icon: await popup.locator('#stateIcon').getAttribute('src'),
+      text: await popup.locator('#statusText').textContent(),
+      count: await popup.locator('#blocked').textContent(),
+    };
+    await popup.close();
+    return r;
+  }
+
+  test('blue when nothing needed blocking', async ({ context, sw, extensionId, url }) => {
+    const page = await context.newPage();
+    await page.goto(url('site.test', 'landing.html'));
+    await page.waitForTimeout(500);
+    const r = await statusOf(context, extensionId, sw, '*://site.test/*');
+    expect(r.level).toBe('idle');
+    expect(r.icon).toContain('idle-32');
+    expect(r.text).toContain('Nothing to block');
+  });
+
+  test('green once ads are blocked, with a live count', async ({ context, sw, extensionId, url }) => {
+    const page = await context.newPage();
+    await page.goto(url('site.test', 'basic.html'));
+    await expect.poll(() => page.evaluate(() => window.__net.ad)).toBe('error');
+    const r = await statusOf(context, extensionId, sw, '*://site.test/*');
+    expect(r.level).toBe('protected');
+    expect(r.icon).toContain('protected-32');
+    expect(Number(r.count)).toBeGreaterThanOrEqual(1);
+  });
+
+  test('amber after a tab-under is undone', async ({ context, sw, extensionId, url }) => {
+    const page = await context.newPage();
+    const start = url('site.test', 'popup.html');
+    await page.goto(start);
+    await page.click('#tabUnder');
+    await expect.poll(() => page.url(), { timeout: 5000 }).toBe(start);
+    await page.waitForTimeout(2000);
+    const r = await statusOf(context, extensionId, sw, '*://site.test/*popup*');
+    expect(r.level).toBe('caution');
+    expect(r.text).toContain('pop-up');
+  });
+
+  test('red when a page loads from a malware host', async ({ context, sw, extensionId, url }) => {
+    const page = await context.newPage();
+    await page.goto(url('site.test', 'malware-embed.html'));
+    await expect.poll(() => page.evaluate(() => window.__net.malware)).toBe('error');
+    const r = await statusOf(context, extensionId, sw, '*://site.test/*');
+    expect(r.level).toBe('danger');
+    expect(r.icon).toContain('danger-32');
+    expect(r.text).toContain('sb-malware.test');
+  });
+
+  test('status colours can be switched off', async ({ context, sw, extensionId, url }) => {
+    await sw.evaluate(() => chrome.storage.local.set({ statusIcon: false }));
+    const page = await context.newPage();
+    await page.goto(url('site.test', 'basic.html'));
+    await expect.poll(() => page.evaluate(() => window.__net.ad)).toBe('error');
+    const r = await statusOf(context, extensionId, sw, '*://site.test/*');
+    expect(r.level).toBe('protected');
+    expect(r.icon).toContain('idle-32');
+  });
+});
+
+test.describe('malware and scams', () => {
+  test('a listed host gets the warning page, and "continue" lets you through for the session', async ({ context, sw, url }) => {
+    const page = await context.newPage();
+    const target = url('sb-malware.test', 'landing.html');
+    await page.goto(target).catch(() => {});
+    await expect.poll(() => page.url()).toContain('/warning/warning.html');
+    await expect(page.locator('#host')).toHaveText('sb-malware.test');
+    await page.click('#proceed');
+    await expect.poll(() => page.url()).toBe(target);
+    await expect(page.locator('body')).toHaveText(/landing page/);
+    // Still allowed on the next visit this session
+    const again = await context.newPage();
+    await again.goto(target);
+    expect(again.url()).toBe(target);
+  });
+
+  test('"Back to safety" returns to the previous page', async ({ context, sw, url }) => {
+    const page = await context.newPage();
+    const start = url('site.test', 'landing.html');
+    await page.goto(start);
+    await page.goto(url('sb-malware.test', 'landing.html')).catch(() => {});
+    await expect.poll(() => page.url()).toContain('/warning/warning.html');
+    await page.click('#back');
+    await expect.poll(() => page.url()).toBe(start);
+  });
+
+  test('page-URL entries (phishing lists) warn on that path only', async ({ context, sw, url, server }) => {
+    const page = await context.newPage();
+    await page.goto(`http://sb-phish.test:${server.port}/login/index.html`).catch(() => {});
+    await expect.poll(() => page.url()).toContain('/warning/warning.html');
+    const ok = await context.newPage();
+    await ok.goto(url('sb-phish.test', 'landing.html'));
+    expect(ok.url()).toContain('sb-phish.test');
+  });
+
+  test('pausing a site does not switch off malware protection', async ({ context, sw, url }) => {
+    await sw.evaluate(() => chrome.storage.local.set({ allowlist: ['site.test'] }));
+    await sw.evaluate(async () => {
+      // apply the pause the way the popup would
+      await chrome.declarativeNetRequest.updateDynamicRules({ removeRuleIds: [1], addRules: [{ id: 1, priority: 1000, action: { type: 'allowAllRequests' }, condition: { requestDomains: ['site.test'], resourceTypes: ['main_frame'] } }] });
+    });
+    const page = await context.newPage();
+    await page.goto(url('site.test', 'malware-embed.html'));
+    await expect.poll(() => page.evaluate(() => window.__net.malware)).toBe('error');
+    const paused = await context.newPage();
+    await paused.goto(url('site.test', 'basic.html'));
+    await expect.poll(() => paused.evaluate(() => window.__net.ad)).toBe('load');
+  });
+});
+
 test.describe('global switch and categories', () => {
   test('protection off disables rulesets and unregisters every script', async ({ context, sw, extensionId, url }) => {
     const page = await context.newPage();
@@ -292,7 +410,7 @@ test.describe('global switch and categories', () => {
   test('options page toggles a category', async ({ context, sw, extensionId }) => {
     const options = await context.newPage();
     await options.goto(`chrome-extension://${extensionId}/options/options.html`);
-    await expect(options.locator('.cat')).toHaveCount(3);
+    await expect(options.locator('.cat')).toHaveCount(4);
     await expect(options.locator('#listRows tr')).not.toHaveCount(0);
     await options.getByLabel('Ads & anti-adblock').click({ force: true });
     await expect.poll(() => sw.evaluate(() => chrome.declarativeNetRequest.getEnabledRulesets())).not.toContain('ads');

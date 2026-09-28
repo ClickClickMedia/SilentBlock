@@ -10,6 +10,7 @@ globalThis.chrome = {
       set: async (o) => { Object.assign(store, structuredClone(o)); },
       clear: async () => { store = {}; },
     },
+    onChanged: { addListener: () => {} },
   },
 };
 
@@ -20,7 +21,7 @@ beforeEach(() => { store = {}; });
 test('normalise fills defaults and rejects junk', () => {
   assert.deepEqual(normalise(undefined), defaults());
   const n = normalise({ enabled: 'yes', allowlist: ['B.com', 'b.com', 'bad host', 5, 'https://a.com/x'], categories: { ads: false, evil: true }, badge: 1 });
-  assert.deepEqual(n, { ...defaults(), allowlist: ['a.com', 'b.com'], categories: { ads: false, privacy: true, annoyances: true } });
+  assert.deepEqual(n, { ...defaults(), allowlist: ['a.com', 'b.com'], categories: { ads: false, privacy: true, annoyances: true, security: true } });
 });
 
 test('first install writes defaults', async () => {

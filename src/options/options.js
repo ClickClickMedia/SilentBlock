@@ -57,6 +57,7 @@ function render() {
   $('subtitle').textContent = `Version ${meta.version}, lists built ${fmtDate(meta.builtAt)}`;
   $('enabled').checked = state.enabled;
   $('badge').checked = state.badge;
+  $('statusIcon').checked = state.statusIcon;
   renderCategories();
   renderList('pausedList', state.allowlist, (h) => save({ allowlist: state.allowlist.filter((x) => x !== h) }));
   renderList('unwallList', state.unwallSites, (h) => save({ unwallSites: state.unwallSites.filter((x) => x !== h) }));
@@ -83,6 +84,7 @@ async function save(patch) {
 
 $('enabled').addEventListener('change', (e) => save({ enabled: e.target.checked }));
 $('badge').addEventListener('change', (e) => save({ badge: e.target.checked }));
+$('statusIcon').addEventListener('change', (e) => save({ statusIcon: e.target.checked }));
 
 $('addPaused').addEventListener('submit', async (e) => {
   e.preventDefault();

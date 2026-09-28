@@ -1,0 +1,8 @@
+! Title: SilentBlock security
+! SilentBlock's own additions to the malware and scam lists.
+
+! Self-test fixture (.test is a reserved TLD, see silentblock-selftest.txt)
+||sb-malware.test^$all
+
+! Page-URL entry, like the phishing and URLhaus lists use (checked by the service worker)
+||sb-phish.test/login/^$all

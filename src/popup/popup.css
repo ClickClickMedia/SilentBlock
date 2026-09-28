@@ -3,8 +3,7 @@ body { width: 300px; }
 .popup[data-state="loading"] { visibility: hidden; }
 
 .head { display: flex; align-items: center; gap: 8px; padding: 12px 14px; border-bottom: 1px solid var(--line); }
-.shield { color: var(--accent); }
-.popup[data-enabled="false"] .shield, .popup[data-paused="true"] .shield { color: var(--muted); }
+.shield { display: block; }
 .brand { font-weight: 700; font-size: 14px; }
 .version { margin-left: auto; color: var(--muted); font-size: 11px; }
 
@@ -15,9 +14,23 @@ body { width: 300px; }
 .popup[data-paused="true"] #siteHint { color: var(--paused); }
 .reload { margin: 0 14px 12px; }
 
-.stat { display: flex; align-items: baseline; gap: 8px; padding: 12px 14px; border-top: 1px solid var(--line); }
-.num { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--accent); }
+.stat { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border-top: 1px solid var(--line); }
+.count { display: flex; align-items: baseline; gap: 8px; }
+.num { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--level); }
 .cap { font-size: 12px; color: var(--muted); }
+.status-line { margin: 0; display: flex; align-items: flex-start; gap: 7px; font-size: 12px; line-height: 1.4; }
+.status-line .dot { flex: none; width: 8px; height: 8px; margin-top: 4px; border-radius: 50%; background: var(--level); }
+/* Level colours match the toolbar icon. */
+.popup { --level: #4A6FA5; }
+.popup[data-level="protected"] { --level: #15986A; }
+.popup[data-level="caution"] { --level: #C9820F; }
+.popup[data-level="danger"] { --level: #A4243B; }
+@media (prefers-color-scheme: dark) {
+  .popup { --level: #7D9FD3; }
+  .popup[data-level="protected"] { --level: #3CC48F; }
+  .popup[data-level="caution"] { --level: #F0B042; }
+  .popup[data-level="danger"] { --level: #F07A8E; }
+}
 
 .actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; border-top: 1px solid var(--line); }
 .check { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); cursor: pointer; }

@@ -10,18 +10,31 @@ the extension and never downloads rules at runtime.
 
 | Layer | How |
 |---|---|
-| **Network blocking** | ~20,700 `declarativeNetRequest` rules (from ~120,000 filters; the ~100,000 plain `\|\|domain^` filters fold into a few dozen rules). Chrome enforces them itself, so no page script runs until it has been checked. |
+| **Network blocking** | ~21,700 `declarativeNetRequest` rules (from ~120,000 filters; the ~100,000 plain `\|\|domain^` filters fold into a few dozen rules). Chrome enforces them itself, so no page script runs until it has been checked. |
 | **Stand-ins** | Blocked Google Analytics, Tag Manager, gtag, GPT and AdSense scripts are swapped for local stubs, so "track the click, then navigate" links and anti-flicker snippets still work. |
 | **Generic hiding** | The page reports its class and id names, and the service worker injects CSS for the ~27,500 generic ad and cookie-banner selectors that match. Nothing is parsed per frame for the rest. |
 | **Site-specific hiding** | ~28,000 hostnames with their own hide and restyle rules, injected per frame as it loads. |
 | **Anti-adblock** | ~8,200 site-specific scriptlets (uBO semantics: `set-constant`, `abort-on-property-read`, `prevent-setTimeout`, `json-prune` and 30 others), run in the page before its own scripts, only on the sites listed. |
 | **Pop-ups and tab-unders** | New tabs a page opens are followed for their first few hops and closed if they land on one of ~3,000 `$popup` hosts. A tab sent to an ad right after the page reopened itself in a new tab is put back. |
+| **Malware and scams** | uBO Badware, URLhaus, the Phishing URL Blocklist and DurableNapkin's scam list: ~46,000 hosts blocked outright, plus ~36,000 individual phishing and malware page URLs checked on every navigation. A listed page gets a warning with "Back to safety" and "Continue anyway". This layer stays on for paused sites. No API keys and no lookups: every check is local. |
 | **Nag walls** | "Kill nag wall" in the popup removes an anti-adblock overlay on demand, or on every visit with "Always on this site". |
 
 Every piece of CSS is injected as a *user* stylesheet: pages cannot see it, override it or
 block it with CSP. On ordinary sites SilentBlock patches no page APIs at all.
 
 ## Using it
+
+The toolbar icon's colour tells you what happened on the page in front of you:
+
+| Colour | Meaning |
+|---|---|
+| Slate blue | Nothing on this page needed blocking (also the brand colour) |
+| Green | Protected: ads and trackers blocked |
+| Amber | Pushy site: a pop-up, tab-under or nag wall was dealt with |
+| Red | A known malware, phishing or scam host was blocked |
+| Grey | Paused on this site, or protection is off |
+
+The popup explains the colour and shows a live count. Settings can keep the icon plain blue.
 
 - **Protection** turns everything on or off.
 - **Block on this site** pauses SilentBlock on the current site and its subdomains. This is
@@ -84,7 +97,8 @@ src/
   content/                 token reporter, Facebook sponsored posts, nag-wall remover
   scriptlets/library.js    MAIN-world scriptlets, embedded into each bucket by the build
   resources/               redirect stubs (GPT, gtag/GTM, analytics.js, noop files)
-  popup/, options/, shared/
+  icons/                   toolbar icons per state, rendered by scripts/icons.mjs from assets/icons/
+  popup/, options/, warning/, shared/
 test/unit, test/e2e, test/fixtures
 ```
 
@@ -129,7 +143,10 @@ zips to a GitHub release.
 | List | Licence |
 |---|---|
 | EasyList, EasyPrivacy, EasyList Cookie List | GPL-3.0 or CC BY-SA 3.0 |
-| uBlock filters (main, quick fixes, unbreak, privacy, cookie notices) | GPL-3.0 |
+| uBlock filters (main, quick fixes, unbreak, privacy, cookie notices, badware) | GPL-3.0 |
+| Malicious URL Blocklist (URLhaus data) | CC0 / MIT |
+| Phishing URL Blocklist | CC BY-SA 4.0 (sources: OpenPhish, PhishTank, IPThreat) |
+| Scam Blocklist by DurableNapkin | MIT |
 
 The lists are bundled as data in their original terms. Publishing SilentBlock outside CCM
 (for example on the public Chrome Web Store) means distributing GPL-3.0 material, so check

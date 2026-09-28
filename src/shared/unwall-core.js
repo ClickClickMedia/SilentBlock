@@ -94,9 +94,16 @@ function unwallSweep() {
 }
 
 // Sweep now, then keep sweeping (throttled) while the page settles, for `ms` milliseconds.
-function unwallWatch(ms) {
+// `onHit` runs once, the first time a wall is actually removed.
+function unwallWatch(ms, onHit) {
   let pending = 0;
-  const sweep = () => { pending = 0; try { unwallSweep(); } catch { /* page in flux */ } };
+  let reported = false;
+  const sweep = () => {
+    pending = 0;
+    let hit = false;
+    try { hit = unwallSweep(); } catch { /* page in flux */ }
+    if (hit && !reported && onHit) { reported = true; try { onHit(); } catch { /* ignore */ } }
+  };
   const schedule = () => { if (!pending) pending = setTimeout(sweep, 400); };
   const start = () => {
     sweep();

@@ -2,7 +2,7 @@ body { padding: 24px 16px 48px; font-size: 14px; }
 .wrap { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
 
 .top { display: flex; align-items: center; gap: 12px; }
-.top .shield { color: var(--accent); flex: none; }
+.top .shield { flex: none; display: block; }
 h1 { margin: 0; font-size: 22px; }
 h2 { margin: 0 0 2px; font-size: 15px; }
 .top .hint { margin: 2px 0 0; }

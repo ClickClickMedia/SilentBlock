@@ -7,16 +7,17 @@ import { normaliseHostname } from '../shared/hostnames.js';
 
 export const SCHEMA = 2;
 
-export const TOGGLEABLE = ['ads', 'privacy', 'annoyances'];
+export const TOGGLEABLE = ['ads', 'privacy', 'annoyances', 'security'];
 
 export function defaults() {
   return {
     schema: SCHEMA,
     enabled: true,
     allowlist: [],
-    categories: { ads: true, privacy: true, annoyances: true },
+    categories: { ads: true, privacy: true, annoyances: true, security: true },
     unwallSites: [],
     badge: false,
+    statusIcon: true,
   };
 }
 
@@ -44,16 +45,24 @@ export function normalise(raw) {
     categories,
     unwallSites: hostList(r.unwallSites),
     badge: typeof r.badge === 'boolean' ? r.badge : d.badge,
+    statusIcon: typeof r.statusIcon === 'boolean' ? r.statusIcon : d.statusIcon,
   };
 }
 
+// Cached: the worker reads settings on every blocked request, so keep a copy and drop it
+// whenever storage changes.
+let cached = null;
+chrome.storage.onChanged.addListener((_changes, area) => { if (area === 'local') cached = null; });
+
 export async function loadState() {
-  return normalise(await chrome.storage.local.get(null));
+  if (!cached) cached = chrome.storage.local.get(null).then(normalise);
+  return cached;
 }
 
 export async function saveState(patch) {
   const next = normalise({ ...(await loadState()), ...patch });
   await chrome.storage.local.set(next);
+  cached = Promise.resolve(next);
   return next;
 }
 
@@ -72,6 +81,7 @@ export async function migrate() {
     categories: raw.categories,
     unwallSites: raw.unwallSites,
     badge: raw.badge,
+    statusIcon: raw.statusIcon,
   });
   await chrome.storage.local.clear();
   await chrome.storage.local.set(next);
