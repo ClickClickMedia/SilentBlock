@@ -1,0 +1,83 @@
+name: Publish
+
+# Submits an existing GitHub release to the stores. Runs automatically after a tag release
+# (release.yml calls it), or by hand to retry a store or pick up newly added credentials:
+#   gh workflow run publish.yml -f tag=v2.0.1
+#   gh workflow run publish.yml -f tag=v2.0.1 -f stores=firefox
+#   Chrome Web Store  keyless, via Workload Identity Federation (clicktrack-505800)
+#   Firefox (AMO)     secrets AMO_JWT_ISSUER, AMO_JWT_SECRET
+#   Microsoft Edge    secrets EDGE_PRODUCT_ID, EDGE_CLIENT_ID, EDGE_API_KEY
+# A store with no credentials is skipped, not failed.
+on:
+  workflow_call:
+    inputs:
+      tag: { type: string, required: true }
+      stores: { type: string, default: 'chrome,firefox,edge' }
+  workflow_dispatch:
+    inputs:
+      tag: { description: 'Release tag, e.g. v2.0.1', type: string, required: true }
+      stores: { description: 'Comma-separated: chrome,firefox,edge', type: string, default: 'chrome,firefox,edge' }
+
+jobs:
+  chrome:
+    if: contains(inputs.stores, 'chrome')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: '${{ inputs.tag }}' }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/667575805085/locations/global/workloadIdentityPools/github/providers/silentblock
+          service_account: cws-publisher@clicktrack-505800.iam.gserviceaccount.com
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/chromewebstore
+      - name: Download release zips
+        env: { GH_TOKEN: '${{ github.token }}' }
+        run: gh release download "${{ inputs.tag }}" --dir release
+      - name: Submit to the Chrome Web Store
+        env: { CWS_ACCESS_TOKEN: '${{ steps.auth.outputs.access_token }}' }
+        run: node scripts/publish/chrome.mjs
+
+  firefox:
+    if: contains(inputs.stores, 'firefox')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: '${{ inputs.tag }}' }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Download release zips
+        env: { GH_TOKEN: '${{ github.token }}' }
+        run: gh release download "${{ inputs.tag }}" --dir release
+      - name: Submit to addons.mozilla.org
+        env:
+          AMO_JWT_ISSUER: ${{ secrets.AMO_JWT_ISSUER }}
+          AMO_JWT_SECRET: ${{ secrets.AMO_JWT_SECRET }}
+        run: node scripts/publish/firefox.mjs
+
+  edge:
+    if: contains(inputs.stores, 'edge')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: '${{ inputs.tag }}' }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Download release zips
+        env: { GH_TOKEN: '${{ github.token }}' }
+        run: gh release download "${{ inputs.tag }}" --dir release
+      - name: Submit to Microsoft Edge Add-ons
+        env:
+          EDGE_PRODUCT_ID: ${{ secrets.EDGE_PRODUCT_ID }}
+          EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
+          EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
+        run: node scripts/publish/edge.mjs
