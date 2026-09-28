@@ -234,3 +234,19 @@ test('$script,popup filters keep their network half', () => {
   assert.deepEqual(rest.options.map((o) => o.name), ['script']);
   assert.equal(withoutPopup(parseLine('||ads.com^$popup')), null);
 });
+
+// ---- security page-URL matching ------------------------------------------------------------
+
+import { pathMatches } from '../../src/shared/url-match.js';
+
+test('page-URL entries use ABP separator semantics', () => {
+  // A shortener code must not swallow a longer, different code.
+  assert.equal(pathMatches('/6Y3zq', '/6Y3zq^'), true);
+  assert.equal(pathMatches('/6Y3zq?utm=x', '/6Y3zq^'), true);
+  assert.equal(pathMatches('/6Y3zq/', '/6Y3zq^'), true);
+  assert.equal(pathMatches('/6Y3zqABC', '/6Y3zq^'), false);
+  assert.equal(pathMatches('/6Y3zq-x', '/6Y3zq^'), false);
+  // Without ^ it is a plain prefix.
+  assert.equal(pathMatches('/spt/login.php', '/spt/'), true);
+  assert.equal(pathMatches('/sp', '/spt/'), false);
+});

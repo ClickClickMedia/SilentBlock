@@ -85,10 +85,11 @@ for (const { list, p } of parsed) {
     // Phishing and malware lists name ~35k individual page URLs. As DNR rules they would
     // blow Chrome's 30k static-rule guarantee, and they only matter for pages you open, so
     // the service worker checks top-level navigations against them instead.
-    const m = /^\|\|([a-z0-9._-]+)(\/[^*^|]*)\^?$/i.exec(c.urlFilter || '');
+    // Keep a trailing ^ so the worker applies separator semantics (src/shared/url-match.js).
+    const m = /^\|\|([a-z0-9._-]+)(\/[^*^|]*)(\^?)$/i.exec(c.urlFilter || '');
     if (r.rule.action.type === 'block' && m && (!c.resourceTypes || c.resourceTypes.includes('main_frame'))) {
       const host = m[1].toLowerCase();
-      (securityUrls[host] ||= new Set()).add(m[2]);
+      (securityUrls[host] ||= new Set()).add(m[2] + m[3]);
       bump(netStats, 'security-url');
       continue;
     }
@@ -179,9 +180,37 @@ out['registration.json'] = {
 // Security lookup data for the service worker: every blocked host (to colour the icon red
 // when a page touches one, and to show the warning page) and the page-URL list above.
 if (rulesByCat.security) {
+  // Only rules that block a WHOLE host count. A rule like `/c/*?s1=$doc,to=com` becomes
+  // requestDomains:["com"] plus a urlFilter; copying its requestDomains here flagged every
+  // .com site as malware (fixed 2026-09-28, pinned by silentblock-security.txt).
+  const WHOLE_HOST_KEYS = new Set(['requestDomains', 'resourceTypes']);
   const hosts = new Set();
   for (const r of rulesByCat.security) {
-    if (r.action.type === 'block' && r.condition.requestDomains) r.condition.requestDomains.forEach((h) => hosts.add(h));
+    const c = r.condition;
+    if (r.action.type !== 'block' || !c.requestDomains) continue;
+    if (!Object.keys(c).every((k) => WHOLE_HOST_KEYS.has(k))) continue;
+    if (c.resourceTypes && !c.resourceTypes.includes('main_frame')) continue; // e.g. $script only: not a dangerous page
+    for (const h of c.requestDomains) if (h.includes('.')) hosts.add(h);
+  }
+  if ([...hosts].some((h) => !h.includes('.'))) throw new Error('security/hosts.json would contain a bare TLD');
+  // Tripwire: one bad upstream entry for a major site or a shared platform would put a
+  // malware warning on thousands of legitimate sites. Fail the build instead of shipping it.
+  const NEVER_WHOLE_HOST = [
+    'google.com', 'youtube.com', 'facebook.com', 'instagram.com', 'amazon.com', 'microsoft.com', 'live.com',
+    'office.com', 'apple.com', 'icloud.com', 'github.com', 'linkedin.com', 'wikipedia.org', 'reddit.com',
+    'cloudflare.com', 'workers.dev', 'pages.dev', 'github.io', 'gitlab.io', 'netlify.app', 'vercel.app',
+    'herokuapp.com', 'firebaseapp.com', 'web.app', 'appspot.com', 'blogspot.com', 'wordpress.com', 'weebly.com',
+    'wixsite.com', 'squarespace.com', 'godaddysites.com', 'googleapis.com', 'amazonaws.com', 'azurewebsites.net',
+    'windows.net', 'dropbox.com', 'sharepoint.com', 'bit.ly', 't.co', 'tinyurl.com', 'linktr.ee', 'myshopify.com',
+    'clickclickmedia.com.au', 'paladine.com.au',
+  ];
+  for (const site of NEVER_WHOLE_HOST) {
+    for (let h = site; h; h = h.includes('.') ? h.slice(h.indexOf('.') + 1) : '') {
+      if (hosts.has(h)) throw new Error(`security/hosts.json would flag all of ${site} (entry "${h}"): check the upstream lists`);
+    }
+  }
+  for (const [h, set] of Object.entries(securityUrls)) {
+    for (const p of set) if (p === '/' || p === '/^') throw new Error(`security page-URL entry "${h}${p}" would flag the whole site`);
   }
   out['security/hosts.json'] = [...hosts].sort();
   out['security/urls.json'] = Object.fromEntries(Object.entries(securityUrls).sort().map(([h, set]) => [h, [...set].sort()]));

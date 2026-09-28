@@ -367,12 +367,16 @@ test.describe('malware and scams', () => {
   });
 
   test('page-URL entries (phishing lists) warn on that path only', async ({ context, sw, url, server }) => {
+    // Entry is `||sb-phish.test/login/^`: the path must end there or hit a separator.
     const page = await context.newPage();
-    await page.goto(`http://sb-phish.test:${server.port}/login/index.html`).catch(() => {});
+    await page.goto(`http://sb-phish.test:${server.port}/login/?session=1`).catch(() => {});
     await expect.poll(() => page.url()).toContain('/warning/warning.html');
-    const ok = await context.newPage();
-    await ok.goto(url('sb-phish.test', 'landing.html'));
-    expect(ok.url()).toContain('sb-phish.test');
+    for (const path of ['/page/landing.html', '/loginpage/landing.html']) {
+      const ok = await context.newPage();
+      await ok.goto(`http://sb-phish.test:${server.port}${path}`).catch(() => {});
+      await ok.waitForTimeout(500);
+      expect(ok.url(), path).not.toContain('warning.html');
+    }
   });
 
   test('pausing a site does not switch off malware protection', async ({ context, sw, url }) => {

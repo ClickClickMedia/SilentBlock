@@ -6,3 +6,8 @@
 
 ! Page-URL entry, like the phishing and URLhaus lists use (checked by the service worker)
 ||sb-phish.test/login/^$all
+
+! Regression guard: a TLD-scoped pattern rule (the shape that flagged every .com site as
+! malware on 2026-09-28). If it ever leaks into the whole-host list again, every .test page
+! in the e2e suite gets the warning page and the suite fails.
+/sb-tld-scoped/$doc,to=test

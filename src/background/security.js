@@ -6,6 +6,7 @@
 // navigations are checked against them here. Either way the tab is sent to a warning page,
 // where the user can go back or continue for the rest of the browser session.
 import { hostnameAndParents } from '../shared/hostnames.js';
+import { pathMatches } from '../shared/url-match.js';
 import { loadJSON } from './data.js';
 
 const BYPASS_KEY = 'secBypass';
@@ -24,7 +25,8 @@ export function securityOn(settings) {
 // The listed host covering `hostname`, or null.
 export async function dangerHost(hostname) {
   const set = await hosts();
-  for (const h of hostnameAndParents(hostname)) if (set.has(h)) return h;
+  // Never match on a bare TLD, whatever the data says: that would flag every site in it.
+  for (const h of hostnameAndParents(hostname)) if (h.includes('.') && set.has(h)) return h;
   return null;
 }
 
@@ -37,7 +39,7 @@ async function dangerPage(url) {
   const path = u.pathname + u.search;
   for (const h of hostnameAndParents(u.hostname)) {
     const prefixes = urls[h];
-    if (prefixes && prefixes.some((p) => path.startsWith(p))) return u.hostname;
+    if (prefixes && prefixes.some((p) => pathMatches(path, p))) return u.hostname;
   }
   return null;
 }
