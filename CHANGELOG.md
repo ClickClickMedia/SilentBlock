@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 
-## [2.0.0] - 2026-09-25
+## [2.0.0] - 2026-09-28
 
 A rebuild. The 1.x engine (a hand-written list of ~226 domains plus global page patches)
 is replaced by the real filter lists compiled into Chrome's native blocker.
