@@ -1,4 +1,4 @@
-// Microsoft Edge Add-ons: upload the Chrome zip (Edge runs the same build) to the draft
+// Microsoft Edge Add-ons: upload the Edge zip (the Chrome build with the polite icons) to the draft
 // submission, then publish it for certification.
 //   EDGE_PRODUCT_ID=... EDGE_CLIENT_ID=... EDGE_API_KEY=... node scripts/publish/edge.mjs
 // Credentials: Partner Center > Microsoft Edge > Publish API. The product ID is the Partner
@@ -24,7 +24,7 @@ async function waitFor(url, what) {
 const v = await version();
 console.log(`edge: uploading v${v}`);
 const { res: upRes } = await call(`${API}/draft/package`, {
-  method: 'POST', headers: { ...auth, 'content-type': 'application/zip' }, body: await readFile(await zipFor('chrome')),
+  method: 'POST', headers: { ...auth, 'content-type': 'application/zip' }, body: await readFile(await zipFor('edge')),
 }, 'upload');
 await waitFor(`${API}/draft/package/operations/${upRes.headers.get('location')}`, 'upload');
 

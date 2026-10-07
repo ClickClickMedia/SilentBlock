@@ -98,6 +98,7 @@ src/
   scriptlets/library.js    MAIN-world scriptlets, embedded into each bucket by the build
   resources/               redirect stubs (GPT, gtag/GTM, analytics.js, noop files)
   icons/                   toolbar icons per state, rendered by scripts/icons.mjs from assets/icons/
+  icons-edge/              the same for the Edge build, without the middle finger (Edge policy 2.10)
   popup/, options/, warning/, shared/
 test/unit, test/e2e, test/fixtures
 ```
@@ -152,6 +153,12 @@ The same scripts run locally: `npm run package`, then
 `npm run publish:chrome` (signs in through your gcloud login), `publish:firefox` or
 `publish:edge` with the variables above. `npm run store:status` shows what Chrome has.
 Listing text and images: `docs/store-listing.md` and `npm run store:art`.
+
+Edge gets its own zip (`SilentBlock-<v>-edge.zip`, built from `dist/edge`) and its own images
+(`release/store-art/edge/`). It is the Chrome build with a different hand on the icon: Edge
+Add-ons rejected the middle finger under policy 2.10 on 2026-10-01. Edge also has no API for
+listing images, and its publish API submits whatever listing is in the Partner Center draft,
+so new Edge images go into the draft by hand BEFORE the tag is pushed.
 
 ## Filter lists and licences
 

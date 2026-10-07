@@ -26,6 +26,7 @@ jobs:
       - run: npm run build
       - run: npm test
       - run: node scripts/verify-load.mjs chrome
+      - run: node scripts/verify-load.mjs edge
       - run: npm run test:e2e
       - name: Firefox smoke test
         run: npm run test:firefox

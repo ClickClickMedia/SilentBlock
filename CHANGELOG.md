@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [2.0.3] - 2026-10-07
+
+### Changed
+- Edge gets its own build with a different hand on the icon (every finger up except the
+  middle one), after Edge Add-ons certification rejected the store logo. Chrome and Firefox
+  are unchanged.
+
 ## [2.0.2] - 2026-09-29
 
 ### Changed

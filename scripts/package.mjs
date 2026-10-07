@@ -1,4 +1,4 @@
-// Zips dist/chrome and dist/firefox into release/. manifest.json sits at the zip root,
+// Zips dist/chrome, dist/firefox and dist/edge into release/. manifest.json sits at the zip root,
 // which is what the Chrome Web Store and addons.mozilla.org expect.
 //   node scripts/package.mjs
 import { readdir, readFile, writeFile, mkdir, stat } from 'node:fs/promises';
@@ -77,7 +77,7 @@ function zip(files) {
 
 const outDir = path.join(root, 'release');
 await mkdir(outDir, { recursive: true });
-for (const target of ['chrome', 'firefox']) {
+for (const target of ['chrome', 'firefox', 'edge']) {
   const dir = path.join(root, 'dist', target);
   try { await stat(path.join(dir, 'manifest.json')); } catch { throw new Error(`dist/${target} missing: run npm run build first`); }
   const manifest = JSON.parse(await readFile(path.join(dir, 'manifest.json'), 'utf8'));

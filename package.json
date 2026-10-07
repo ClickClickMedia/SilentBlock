@@ -1,6 +1,6 @@
 {
   "name": "silentblock",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "private": true,
   "description": "Free, silent ad blocker for Chrome (MV3). No ads, no nags.",
   "type": "module",
