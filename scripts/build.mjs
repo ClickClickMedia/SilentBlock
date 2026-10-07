@@ -1,4 +1,4 @@
-// Builds dist/chrome and dist/firefox from src/ and the filter lists.
+// Builds dist/chrome, dist/firefox and dist/edge from src/ and the filter lists.
 //
 //   node scripts/build.mjs               full build, selectors validated in headless Chromium
 //   node scripts/build.mjs --no-validate skip browser validation (faster, CI without a browser)
@@ -272,12 +272,14 @@ function manifestFor(target) {
 }
 
 const report = [];
-for (const target of ['chrome', 'firefox']) {
+// Edge is the Chrome build with the polite icons (src/icons-edge, see scripts/icons.mjs).
+for (const target of ['chrome', 'firefox', 'edge']) {
   const dist = path.join(root, 'dist', target);
   await rm(dist, { recursive: true, force: true });
   await mkdir(dist, { recursive: true });
   for (const dir of ['background', 'popup', 'options', 'warning', 'content', 'shared', 'icons', 'resources']) {
-    await cp(path.join(root, 'src', dir), path.join(dist, dir), { recursive: true });
+    const from = dir === 'icons' && target === 'edge' ? 'icons-edge' : dir;
+    await cp(path.join(root, 'src', from), path.join(dist, dir), { recursive: true });
   }
   await rm(path.join(dist, 'shared/unwall-core.js'), { force: true });
   for (const [rel, data] of Object.entries(out)) {

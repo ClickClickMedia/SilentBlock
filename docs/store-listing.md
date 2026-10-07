@@ -3,7 +3,8 @@
 One source for all three stores. The Firefox listing text is updated automatically on
 release (`scripts/publish/firefox.mjs`). Chrome and Edge have no API for listing text, so
 paste these in by hand when they change. Store images: `npm run store:art` renders them into
-`release/store-art/`.
+`release/store-art/` (Chrome and Firefox) and `release/store-art/edge/` (Edge, polite icon:
+never upload the middle-finger set to Edge, it fails certification under policy 2.10).
 
 Store items:
 - Chrome Web Store: `accdpphckockpflaggbplikpmaknioao` (publisher b7b011da-ecfd-4ec1-8d99-c600f9c31543)

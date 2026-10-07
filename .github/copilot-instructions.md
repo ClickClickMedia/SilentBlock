@@ -35,6 +35,8 @@ Read README.md first; this file is the short list of things that bite.
 - Security page URLs (~36k) live in `security/urls.json` and are checked by the worker;
   as DNR rules they would blow the 30k guarantee.
 - Icons are generated: edit `scripts/icons.mjs` and run it, never hand-edit the PNGs.
+- Edge gets `dist/edge` (Chrome build + `src/icons-edge`, no middle finger). Edge rejected the
+  middle finger under policy 2.10; anything Edge sees, package or listing image, uses the polite set.
 
 ## Tests
 - `npm test` for the compiler and settings; `npm run test:e2e` for the real build in Chromium.
