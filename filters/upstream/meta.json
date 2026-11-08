@@ -1,86 +1,86 @@
 {
   "ubo-unbreak": {
     "url": "https://ublockorigin.github.io/uAssets/filters/unbreak.min.txt",
-    "fetchedAt": "2026-09-28T23:15:37.106Z",
-    "lines": 2871,
-    "sha256": "75e3d2da5d91c77b5d1da5c4edbfb80f6a4ecf12ab587bb8788bc46f4f206fc3",
-    "version": "Wed, 23 Sep 2026 10:04:33 +0000"
+    "fetchedAt": "2026-11-08T20:08:23.609Z",
+    "lines": 2885,
+    "sha256": "d54ee7a92982d18b4f94d32038eef714967c9a2454ef55185638f953313c30c4",
+    "version": "Fri, 06 Nov 2026 02:39:15 +0000"
   },
   "easylist": {
     "url": "https://easylist.to/easylist/easylist.txt",
-    "fetchedAt": "2026-09-28T23:15:37.157Z",
-    "lines": 77697,
-    "sha256": "902e341afc9bab8fe017a846604e2f5c786e040fb74db48b62d376b9fba10f92",
-    "version": "202609282308"
+    "fetchedAt": "2026-11-08T20:08:23.775Z",
+    "lines": 79135,
+    "sha256": "8d4216c2003011bcce4ab65e9ff538b43b3bd883eff4b5c7614edd751098d242",
+    "version": "202611081956"
   },
   "ubo-filters": {
     "url": "https://ublockorigin.github.io/uAssets/filters/filters.min.txt",
-    "fetchedAt": "2026-09-28T23:15:37.183Z",
-    "lines": 25900,
-    "sha256": "cad68e304ab4fc7d6fff3a6476109c940889fa2fd37dc7b21c0329a3ff31be9b",
-    "version": "Mon, 28 Sep 2026 11:54:05 +0000"
+    "fetchedAt": "2026-11-08T20:08:23.847Z",
+    "lines": 26415,
+    "sha256": "6bdf13193d1001503278ff42d679acfa4e54a28c47eaba7f195c6c879d3ce826",
+    "version": "Sun, 08 Nov 2026 20:04:16 +0000"
   },
   "ubo-quick-fixes": {
     "url": "https://ublockorigin.github.io/uAssets/filters/quick-fixes.min.txt",
-    "fetchedAt": "2026-09-28T23:15:37.192Z",
-    "lines": 467,
-    "sha256": "207b8bb9aa8dd7202597a947a9c84a7dd40fb1e7546faa67754931c083e8bed1",
-    "version": "Mon, 28 Sep 2026 03:26:26 +0000"
+    "fetchedAt": "2026-11-08T20:08:23.871Z",
+    "lines": 536,
+    "sha256": "1bb6197c1bae71c2302103af559e76dcd0e306bd602da69690321e864b8a2f47",
+    "version": "Sat, 07 Nov 2026 11:58:43 +0000"
   },
   "easyprivacy": {
     "url": "https://easylist.to/easylist/easyprivacy.txt",
-    "fetchedAt": "2026-09-28T23:15:37.232Z",
-    "lines": 56991,
-    "sha256": "79ff6c5212fb8b5ed3b5fc8a72a8296d4abc1c1d9a674878d0e5fa364a7e259c",
-    "version": "202609282300"
+    "fetchedAt": "2026-11-08T20:08:23.942Z",
+    "lines": 57283,
+    "sha256": "c419c203144429ea50c17a99e0a9b0e3f40ce25f4ba4f6a886f5bb2d17d16ec6",
+    "version": "202611081956"
   },
   "ubo-privacy": {
     "url": "https://ublockorigin.github.io/uAssets/filters/privacy.min.txt",
-    "fetchedAt": "2026-09-28T23:15:37.240Z",
-    "lines": 2183,
-    "sha256": "2979227f240ca0b33d267581a611d04192a60fe321d4903acd134171eecf0252",
-    "version": "Sun, 27 Sep 2026 06:52:43 +0000"
+    "fetchedAt": "2026-11-08T20:08:23.963Z",
+    "lines": 2210,
+    "sha256": "f4c1d4fcaecde6a87db53c145a31147315c629886a1952af5c34afb26dfab593",
+    "version": "Fri, 06 Nov 2026 10:11:52 +0000"
   },
   "easylist-cookie": {
     "url": "https://secure.fanboy.co.nz/fanboy-cookiemonster.txt",
-    "fetchedAt": "2026-09-28T23:15:37.285Z",
-    "lines": 26057,
-    "sha256": "8eedbdc935e1e1541091d125f96934146df73a8f01648c81fd77f872a709e311",
-    "version": "2026-09-28 19:00 UTC"
+    "fetchedAt": "2026-11-08T20:08:24.274Z",
+    "lines": 26174,
+    "sha256": "acfd15dfb7f975240d5d4bec7e0c1e4363d3eff36b80471dd63586a2d680c007",
+    "version": "2026-11-08 07:00 UTC"
   },
   "ubo-cookies": {
     "url": "https://ublockorigin.github.io/uAssets/filters/annoyances-cookies.txt",
-    "fetchedAt": "2026-09-28T23:15:37.294Z",
-    "lines": 5772,
-    "sha256": "ea103e892aee9f134092789119500ca03489e88bd182faeba0c45cea61d13020",
-    "version": "Mon, 28 Sep 2026 04:05:14 +0000"
+    "fetchedAt": "2026-11-08T20:08:24.338Z",
+    "lines": 5811,
+    "sha256": "ca24654085c75b3cca14fc4c80682d5ea965e4dbfb9a4933bc18a17a69314fb6",
+    "version": "Sun, 08 Nov 2026 05:47:57 +0000"
   },
   "ubo-badware": {
     "url": "https://ublockorigin.github.io/uAssets/filters/badware.min.txt",
-    "fetchedAt": "2026-09-28T23:15:37.300Z",
-    "lines": 4606,
-    "sha256": "f52bab65265525cb315ec712e41296813d33c619131b3ab1445bf10402ed8750",
-    "version": "Mon, 28 Sep 2026 15:55:35 +0000"
+    "fetchedAt": "2026-11-08T20:08:24.360Z",
+    "lines": 5106,
+    "sha256": "20c362341c65aa607d361e88ba1262fbd25fca3b95fc0ecd387bbb829a0a1b0b",
+    "version": "Sun, 08 Nov 2026 05:22:06 +0000"
   },
   "urlhaus": {
     "url": "https://malware-filter.gitlab.io/malware-filter/urlhaus-filter-ag-online.txt",
-    "fetchedAt": "2026-09-28T23:15:39.150Z",
-    "lines": 9513,
-    "sha256": "1237f97501f252bfb465841ce70d686e1172526f82281b6e7e08a1ff8a8954c5",
+    "fetchedAt": "2026-11-08T20:08:24.812Z",
+    "lines": 91507,
+    "sha256": "321c168cdc59bdbbb20f79b335b9bef3b4f51ce40cc804c3f696da8352742d89",
     "version": null
   },
   "phishing": {
     "url": "https://malware-filter.gitlab.io/malware-filter/phishing-filter-ag.txt",
-    "fetchedAt": "2026-09-28T23:15:40.136Z",
-    "lines": 68323,
-    "sha256": "98265504073815b6061af3b55960768018627036af1bf19534a07c337519e182",
+    "fetchedAt": "2026-11-08T20:08:25.039Z",
+    "lines": 45854,
+    "sha256": "ad4602b69f062be572f62f05ac7f7a9a7e5664380920ba7dbd0176793d44a54f",
     "version": null
   },
   "scam": {
     "url": "https://raw.githubusercontent.com/durablenapkin/scamblocklist/master/adguard.txt",
-    "fetchedAt": "2026-09-28T23:15:40.338Z",
-    "lines": 960,
-    "sha256": "5f6fd40b522381d138b6f7b192fde0db98ae88168adba040769ca9f95a658ea5",
+    "fetchedAt": "2026-11-08T20:08:25.089Z",
+    "lines": 959,
+    "sha256": "a019ba170832994f3a61c8c0f0c498255eee00905fa00e97cd667ec32c2757c1",
     "version": null
   }
 }
