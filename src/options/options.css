@@ -5,6 +5,7 @@ body { padding: 24px 16px 48px; font-size: 14px; }
 .top .shield { flex: none; display: block; }
 h1 { margin: 0; font-size: 22px; }
 h2 { margin: 0 0 2px; font-size: 15px; }
+h3 { margin: 16px 0 0; font-size: 13px; color: var(--muted); }
 .top .hint { margin: 2px 0 0; }
 
 .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); }

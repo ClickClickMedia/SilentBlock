@@ -194,20 +194,20 @@ test.describe('settings survive updates', () => {
     const r = await snapshot(page);
     expect(r.state).toEqual({
       schema: 2, enabled: true, allowlist: ['old.test', 'www.example.com'],
-      categories: { ads: true, privacy: true, annoyances: true, security: true }, unwallSites: [], badge: false, statusIcon: true,
+      categories: { ads: true, privacy: true, annoyances: true, security: true }, unwallSites: [], nuked: { sites: {}, services: {} }, badge: false, statusIcon: true,
     });
     expect(r.dynamic.map((d) => d.id)).toEqual([1]);
   });
 });
 
 test.describe('nag walls', () => {
-  test('"Kill nag wall" hides the wall and restores scrolling', async ({ context, sw, extensionId, url }) => {
+  test('"Nuke this" also sweeps anti-adblock walls and restores scrolling', async ({ context, sw, extensionId, url }) => {
     const page = await context.newPage();
     await page.goto(url('site.test', 'wall.html'));
     const tabId = await tabIdFor(sw, '*://site.test/*wall*');
     const popup = await openPopup(context, extensionId, tabId);
-    await popup.locator('#unwall').click();
-    await expect(popup.locator('#unwall')).toHaveText('Done');
+    await popup.locator('#nuke').click();
+    await expect(popup.locator('#nuke')).toHaveText('Click it on the page');
     await expect.poll(() => display(page, '#wall')).toBe('none');
     await expect.poll(() => display(page, '#backdrop')).toBe('none');
     expect(await page.evaluate(() => getComputedStyle(document.body).overflowY)).toBe('auto');
@@ -395,7 +395,7 @@ test.describe('malware and scams', () => {
 });
 
 test.describe('nag walls in frames', () => {
-  test('"Kill nag wall" also clears a wall inside a cross-origin frame', async ({ context, sw, extensionId, url }) => {
+  test('"Nuke this" also clears a nag wall inside a cross-origin frame', async ({ context, sw, extensionId, url }) => {
     const page = await context.newPage();
     await page.goto(url('site.test', 'wall-frame.html'));
     const inner = () => page.frames().find((f) => f.url().includes('frame-host.test') && f.url().includes('wall.html'));
@@ -404,7 +404,7 @@ test.describe('nag walls in frames', () => {
     await frame.waitForLoadState();
     const tabId = await tabIdFor(sw, '*://site.test/*');
     const popup = await openPopup(context, extensionId, tabId);
-    await popup.locator('#unwall').click();
+    await popup.locator('#nuke').click();
     await expect.poll(() => frame.$eval('#wall', (el) => getComputedStyle(el).display)).toBe('none');
   });
 });

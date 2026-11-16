@@ -1,6 +1,6 @@
 # SilentBlock privacy policy
 
-Last updated: 28 September 2026
+Last updated: 16 November 2026
 
 **SilentBlock collects nothing.** It has no accounts, no analytics, no telemetry and no
 servers. Nothing you browse, block or configure ever leaves your browser.
@@ -14,7 +14,8 @@ servers. Nothing you browse, block or configure ever leaves your browser.
   including Google Safe Browsing or any other lookup service.
 - **Reads the pages you visit** in order to hide ads, remove anti-adblock walls and colour
   its toolbar icon. What it reads stays in the browser and is not stored.
-- **Stores your settings** (paused sites, categories, display options) with your browser's
+- **Stores your settings** (paused sites, categories, display options, and the things you
+  removed with "Nuke this", with the site or service they belong to) with your browser's
   extension storage. They stay in that browser. Export them from Settings if you want a copy.
 - **Keeps per-tab counts** (how many requests were blocked) in memory for the popup. They are
   cleared when you close the tab or the browser.

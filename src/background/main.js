@@ -4,12 +4,13 @@
 // for them. State lives in chrome.storage; nothing here relies on the worker staying alive.
 import { loadState, saveState, migrate, allowlistEntryFor, normalise } from './state.js';
 import { applyAll, applyAction, desiredContentScripts } from './apply.js';
-import { onCommitted, onTokens, rememberTop, forgetTab } from './cosmetic.js';
+import { onCommitted, onTokens, rememberTop, forgetTab, servicesNukedIn } from './cosmetic.js';
 import { onCreatedNavigationTarget, onTopNavigation, onNavigationError, forgetPopupTab, noteCommitted, lastUrlOf } from './popups.js';
 import { resetTab, record, getStatus, levelOf, iconStateFor, forgetStatus } from './status.js';
 import { checkNavigation, dangerHost, securityOn, bypass } from './security.js';
 import { getMeta } from './data.js';
 import { hostnameAndParents, normaliseHostname } from '../shared/hostnames.js';
+import { armNuke, onNukeMessage, clearSiteNukes, nukedCount } from './nuke.js';
 
 const EXTENSION_ORIGIN = chrome.runtime.getURL('');
 
@@ -101,10 +102,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   const fromExtensionPage = typeof sender.url === 'string' && sender.url.startsWith(EXTENSION_ORIGIN);
 
   // Content scripts may say two things: "these classes/ids are on my page", and
-  // "I removed a nag wall". Neither changes settings.
+  // "I removed a nag wall". Neither changes settings. The one exception is the "Nuke this"
+  // picker, and nuke.js only listens to it in a tab where the popup armed it.
   if (!fromExtensionPage && sender.tab) {
     if (message.type === 'tokens') loadState().then((s) => onTokens(message, sender, s)).catch(() => {});
     if (message.type === 'wall') loadState().then((s) => record(sender.tab.id, 'wall', null, s)).catch(() => {});
+    if (message.type === 'nuke:save' || message.type === 'nuke:undo') {
+      onNukeMessage(message, sender).then(sendResponse, (err) => sendResponse({ error: String(err?.message || err) }));
+      return true;
+    }
     return false;
   }
 
@@ -132,6 +138,8 @@ async function handle(msg) {
         const status = await getStatus(msg.tabId);
         out.pausedBy = allowlistEntryFor(info.hostname, state);
         out.unwall = hostnameAndParents(info.hostname).some((h) => state.unwallSites.includes(h));
+        out.nuked = nukedCount(state, info.hostname);
+        out.nukedServices = servicesNukedIn(msg.tabId);
         out.status = { ...status, level: levelOf(status), icon: iconStateFor({ ...status, host: info.hostname }, state) };
       }
       return out;
@@ -156,6 +164,21 @@ async function handle(msg) {
       const state = await saveState({ allowlist });
       await applyAll(state, { dynamic: true, scripts: true, action: true });
       return { ok: true, pausedBy: allowlistEntryFor(hostname, state) };
+    }
+
+    case 'nuke:start': {
+      // Folded-in nag-wall sweep first (harmless where there is no wall), then the picker.
+      await armNuke(msg.tabId);
+      await chrome.scripting.executeScript({ target: { tabId: msg.tabId, allFrames: true }, files: ['content/unwall.js'] }).catch(() => {});
+      await chrome.scripting.executeScript({ target: { tabId: msg.tabId, frameIds: [0] }, files: ['content/nuke.js'] });
+      return { ok: true };
+    }
+
+    case 'nuke:clearSite': {
+      const hostname = normaliseHostname(msg.hostname);
+      if (!hostname) throw new Error('Not a valid hostname');
+      await clearSiteNukes(hostname);
+      return { ok: true };
     }
 
     case 'unwallNow': {

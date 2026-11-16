@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+<head>
+  <title>nuke</title>
+  <style>
+    .paywallco-lock { overflow: hidden; }
+    .paywallco-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(2px); z-index: 999999; display: flex; align-items: center; justify-content: center; }
+    .paywallco-modal { width: 420px; padding: 24px; background: #fff; }
+    .tall { height: 3000px; }
+    #promo { position: fixed; right: 0; bottom: 0; width: 120px; height: 60px; background: orange; }
+  </style>
+  <script>
+    // A paywall vendor loaded from its own host, the way js.pelcro.com is.
+    const s = document.createElement('script');
+    s.src = `http://paywallco.test:${location.port}/script/paywall.js`;
+    document.head.appendChild(s);
+  </script>
+</head>
+<body class="paywallco-lock">
+  <main id="content"><article id="story" style="filter: blur(3px) !important; pointer-events: none !important">Article text</article><div class="tall"></div></main>
+  <div id="paywallco-app" class="paywallco-root">
+    <div class="paywallco-overlay">
+      <div class="paywallco-modal" role="dialog"><h2>Original reporting. Full access.</h2><button id="select">Select</button></div>
+    </div>
+  </div>
+  <div id="promo">promo</div>
+</body>
+</html>
