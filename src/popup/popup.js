@@ -45,10 +45,23 @@ function render() {
   $('siteHint').textContent = hint;
 
   $('unwallAlways').checked = Boolean(info.unwall);
+  renderNuked();
   renderStatus(info.status);
 }
 
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+
+// "1 thing nuked here", plus any learned service (Pelcro, ...) that fired on this page.
+function renderNuked() {
+  const n = info.nuked || 0;
+  const services = info.nukedServices || [];
+  const bits = [];
+  if (n) bits.push(`${plural(n, 'thing', 'things')} nuked here`);
+  if (services.length) bits.push(`${services.join(', ')} walls nuked`);
+  $('nukedRow').hidden = !bits.length;
+  $('nukedText').textContent = bits.join('. ');
+  $('nukedUndo').hidden = !n;
+}
 
 function renderStatus(st) {
   if (!st) return;
@@ -100,16 +113,24 @@ $('reload').addEventListener('click', async () => {
   window.close();
 });
 
-$('unwall').addEventListener('click', async () => {
-  const btn = $('unwall');
+$('nuke').addEventListener('click', async () => {
+  const btn = $('nuke');
   btn.disabled = true;
   try {
-    await send({ type: 'unwallNow', tabId });
-    btn.textContent = 'Done';
+    await send({ type: 'nuke:start', tabId });
+    // The picker is on the page now; get out of the way so the next click lands there.
+    if (!params.has('tabId')) window.close();
+    btn.textContent = 'Click it on the page';
   } catch {
     btn.textContent = "Couldn't run here";
+    setTimeout(() => { btn.textContent = 'Nuke this'; btn.disabled = false; }, 1500);
   }
-  setTimeout(() => { btn.textContent = 'Kill nag wall'; btn.disabled = false; }, 1500);
+});
+
+$('nukedUndo').addEventListener('click', async () => {
+  await send({ type: 'nuke:clearSite', hostname: info.hostname });
+  await refresh();
+  needsReload();
 });
 
 $('unwallAlways').addEventListener('change', async (e) => {

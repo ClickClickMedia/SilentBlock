@@ -17,7 +17,8 @@ the extension and never downloads rules at runtime.
 | **Anti-adblock** | ~8,200 site-specific scriptlets (uBO semantics: `set-constant`, `abort-on-property-read`, `prevent-setTimeout`, `json-prune` and 30 others), run in the page before its own scripts, only on the sites listed. |
 | **Pop-ups and tab-unders** | New tabs a page opens are followed for their first few hops and closed if they land on one of ~3,000 `$popup` hosts. A tab sent to an ad right after the page reopened itself in a new tab is put back. |
 | **Malware and scams** | uBO Badware, URLhaus, the Phishing URL Blocklist and DurableNapkin's scam list: ~46,000 hosts blocked outright, plus ~36,000 individual phishing and malware page URLs checked on every navigation. A listed page gets a warning with "Back to safety" and "Continue anyway". This layer stays on for paused sites. No API keys and no lookups: every check is local. |
-| **Nag walls** | "Kill nag wall" in the popup removes an anti-adblock overlay on demand, or on every visit with "Always on this site". |
+| **Nuke this** | Click "Nuke this" in the popup, then click anything on the page: it is hidden, scrolling and blur are undone, and it stays gone on that site. Click inside a full-screen overlay and the whole overlay goes. If the thing was drawn by a third-party service (its class or id is named after a script host on the page, like `.pelcro-*` with `js.pelcro.com`), the service is remembered and its overlay is hidden on every other site that shows it. Big shared platforms (Google, Cloudflare, CDNs) are never learned. Undo from the page, the popup or Settings. |
+| **Nag walls** | "Nuke this" also sweeps the page for anti-adblock overlays; "Auto-kill nag walls here" does that on every visit. |
 
 Every piece of CSS is injected as a *user* stylesheet: pages cannot see it, override it or
 block it with CSP. On ordinary sites SilentBlock patches no page APIs at all.

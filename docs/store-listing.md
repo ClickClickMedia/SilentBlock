@@ -33,6 +33,9 @@ WHAT IT BLOCKS
 • Malware, phishing and scam sites, using URLhaus, the Phishing URL Blocklist, uBlock Origin's Badware list and a scam blocklist
 • "Turn off your ad blocker" walls, with one click, or automatically on sites you choose
 
+NUKE THIS
+Something still in your way? Click "Nuke this", click the thing, and it's gone, on that site from now on. If it came from a service lots of sites use, SilentBlock remembers the service and nukes it on those sites too. Changed your mind? Undo is one click.
+
 THE ICON TELLS YOU WHAT HAPPENED
 • Blue: nothing on this page needed blocking
 • Green: ads and trackers blocked
@@ -62,8 +65,8 @@ Leave each store's category as the existing listing has it (Firefox: Privacy & S
 
 **Permission justifications:**
 - `declarativeNetRequest`: applies the bundled filter lists with the browser's built-in request blocker.
-- `scripting`: injects the bundled hiding rules and anti-adblock fixes into pages, and removes anti-adblock walls when the user asks.
-- `storage`: saves the user's settings (paused sites, categories, display options).
+- `scripting`: injects the bundled hiding rules and anti-adblock fixes into pages, and removes anti-adblock walls and hides page elements the user picks with "Nuke this".
+- `storage`: saves the user's settings (paused sites, categories, display options, elements the user chose to hide).
 - `webNavigation`: knows when a page loads, to apply site-specific rules, follow new tabs opened by pages (pop-up blocking), and show the malware warning page.
 - `webRequest`: read-only, counts blocked requests per tab for the toolbar icon colour and the popup count.
 - Host permission `<all_urls>`: ads, trackers and malicious content can appear on any site; blocking and hiding must work on every site the user visits.

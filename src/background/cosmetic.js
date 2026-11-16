@@ -6,6 +6,7 @@ import { hostnameAndParents, shardOf } from '../shared/hostnames.js';
 import { loadJSON, getMeta } from './data.js';
 import { activeCategories } from './apply.js';
 import { isPaused } from './state.js';
+import { nukeCss, siteSelectors, serviceTokenIndex, UNLOCK_CSS } from '../shared/nuke-rules.js';
 
 const FLAG = { ghide: 1, ehide: 2, shide: 4, complexException: 8 };
 
@@ -76,6 +77,13 @@ export function rememberTop(tabId, hostname) {
 
 export function forgetTab(tabId) {
   topHosts.delete(tabId);
+  nukedServices.delete(tabId);
+}
+
+// Learned services that fired on each tab's current page, for the popup.
+const nukedServices = new Map();
+export function servicesNukedIn(tabId) {
+  return [...(nukedServices.get(tabId) || [])];
 }
 
 async function topHostOf(tabId, fallbackUrl) {
@@ -95,6 +103,12 @@ export async function onCommitted({ tabId, frameId, documentId, url }, state) {
   const hostname = new URL(url).hostname;
   const top = frameId === 0 ? hostname : await topHostOf(tabId, url);
   if (isPaused(top, state)) return;
+
+  // "Nuke this" rules are the user's own, so list flags like $elemhide don't switch them off.
+  if (frameId === 0) {
+    nukedServices.delete(tabId);
+    await insert(tabId, frameId, documentId, nukeCss(siteSelectors(state.nuked, hostnameAndParents(hostname))));
+  }
 
   const flags = await hostFlags(hostname);
   if (flags & FLAG.ehide) return;
@@ -131,6 +145,7 @@ export async function onTokens(message, sender, state) {
   const hostname = new URL(sender.url).hostname;
   const top = await topHostOf(sender.tab.id, sender.tab.url || sender.url);
   if (isPaused(top, state)) return;
+  await nukeServices(message.tokens, sender, state);
   const flags = await hostFlags(hostname);
   if (flags & (FLAG.ghide | FLAG.ehide)) return;
 
@@ -145,4 +160,18 @@ export async function onTokens(message, sender, state) {
     if (sets.some((s) => s.has(t))) hits.push(t);
   }
   if (hits.length) await insert(sender.tab.id, sender.frameId, sender.documentId, hideRule(hits));
+}
+
+// A page showing a learned service's token gets that token hidden and the page unlocked.
+// Tokens are lookup keys; only the copies stored in settings (validated) reach the CSS.
+async function nukeServices(reported, sender, state) {
+  const idx = serviceTokenIndex(state.nuked);
+  if (!idx.size) return;
+  const seen = new Set(reported.slice(0, 5000));
+  const hits = [...idx.keys()].filter((t) => seen.has(t));
+  if (!hits.length) return;
+  const set = nukedServices.get(sender.tab.id) || new Set();
+  for (const t of hits) for (const d of idx.get(t)) set.add(state.nuked.services[d].name);
+  nukedServices.set(sender.tab.id, set);
+  await insert(sender.tab.id, sender.frameId, sender.documentId, hideRule(hits) + UNLOCK_CSS);
 }

@@ -225,7 +225,7 @@ for (const cat of categories) {
 }
 
 out['content/unwall.js'] = `// Built from src/shared/unwall-core.js. Injected on demand by the popup and on
-// per-site "always kill nag walls" hosts. Wrapped so a second injection is harmless.
+// per-site "auto-kill nag walls" hosts. Wrapped so a second injection is harmless.
 (() => {
 ${unwallCore}
 unwallWatch(15000, () => chrome.runtime.sendMessage({ type: 'wall' }).catch(() => {}));

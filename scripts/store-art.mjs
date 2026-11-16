@@ -41,7 +41,7 @@ async function render(dist, iconDir, out) {
     window.chrome = {
       runtime: {
         sendMessage: async (m) => m.type === 'popup:get' ? ${JSON.stringify(popupData)}
-          : m.type === 'settings:get' ? { state: { enabled: true, allowlist: ['intranet.example.com'], categories: { ads: true, privacy: true, annoyances: true, security: true }, unwallSites: ['recipes.example.com'], badge: false, statusIcon: true }, meta: ${JSON.stringify(meta)} }
+          : m.type === 'settings:get' ? { state: { enabled: true, allowlist: ['intranet.example.com'], categories: { ads: true, privacy: true, annoyances: true, security: true }, unwallSites: ['recipes.example.com'], nuked: { sites: {}, services: {} }, badge: false, statusIcon: true }, meta: ${JSON.stringify(meta)} }
           : {},
         openOptionsPage() {},
       },

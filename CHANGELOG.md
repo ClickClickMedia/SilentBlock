@@ -2,6 +2,29 @@
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-11-16
+
+### Added
+- "Nuke this" in the popup: click it, then click anything on the page, and it is hidden,
+  with scrolling and any blur undone. It stays gone on that site. Clicking inside a
+  full-screen overlay takes the whole overlay, dimmer included. Esc cancels; the page never
+  receives the picking click.
+- Nuked things that belong to a third-party service (the element's class or id is named
+  after a script host on the page, like `.pelcro-*` with `js.pelcro.com`) teach SilentBlock
+  the service, and its overlay is then hidden on every other site that shows it. Shared
+  platforms (Google, Cloudflare, CDNs and the like) are never learned.
+- Undo straight after a nuke from the on-page toast, per site from the popup, and for any
+  site or service from the new "Nuked" section in Settings.
+
+### Changed
+- "Nuke this" replaces "Kill nag wall": pressing it also sweeps the page for anti-adblock
+  walls as before. "Always on this site" is now "Auto-kill nag walls here".
+
+### Security
+- The picker is the only content script that can change settings, and only narrowly: the
+  service worker accepts a save only from the top frame of a tab the popup just armed, one
+  save per arm, and validates every selector and token before it reaches any stylesheet.
+
 ## [2.0.3] - 2026-10-07
 
 ### Changed

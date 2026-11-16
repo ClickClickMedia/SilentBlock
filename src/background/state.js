@@ -4,6 +4,7 @@
 // unconditionally). Here install writes defaults only when nothing is stored, and update
 // migrates in place.
 import { normaliseHostname } from '../shared/hostnames.js';
+import { normaliseNuked, emptyNuked } from '../shared/nuke-rules.js';
 
 export const SCHEMA = 2;
 
@@ -16,6 +17,7 @@ export function defaults() {
     allowlist: [],
     categories: { ads: true, privacy: true, annoyances: true, security: true },
     unwallSites: [],
+    nuked: emptyNuked(),
     badge: false,
     statusIcon: true,
   };
@@ -44,6 +46,7 @@ export function normalise(raw) {
     allowlist: hostList(r.allowlist),
     categories,
     unwallSites: hostList(r.unwallSites),
+    nuked: normaliseNuked(r.nuked),
     badge: typeof r.badge === 'boolean' ? r.badge : d.badge,
     statusIcon: typeof r.statusIcon === 'boolean' ? r.statusIcon : d.statusIcon,
   };

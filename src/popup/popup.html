@@ -46,8 +46,9 @@
     </section>
 
     <section class="actions" id="actions">
-      <button class="btn" id="unwall" title="Remove an anti-adblock wall or overlay on this page">Kill nag wall</button>
-      <label class="check"><input type="checkbox" id="unwallAlways"> Always on this site</label>
+      <button class="btn primary nuke" id="nuke" title="Click anything on the page to get rid of it, and keep it gone">Nuke this</button>
+      <label class="check"><input type="checkbox" id="unwallAlways"> Auto-kill nag walls here</label>
+      <p class="nuked" id="nukedRow" hidden><span id="nukedText"></span> <button class="link" id="nukedUndo" type="button" hidden>Undo</button></p>
     </section>
 
     <footer class="foot">

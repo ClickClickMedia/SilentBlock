@@ -42,15 +42,26 @@ function renderCategories() {
   }
 }
 
-function renderList(listId, hosts, onRemove) {
+function renderList(listId, hosts, onRemove, labelOf = (h) => h) {
   const ul = $(listId);
   ul.replaceChildren();
   for (const h of hosts) {
     const btn = el('button', { type: 'button', textContent: 'Remove' });
     btn.setAttribute('aria-label', `Remove ${h}`);
     btn.addEventListener('click', () => onRemove(h));
-    ul.append(el('li', {}, el('span', { textContent: h }), btn));
+    ul.append(el('li', {}, el('span', { textContent: labelOf(h) }), btn));
   }
+}
+
+function renderNuked() {
+  const { sites, services } = state.nuked;
+  const without = (obj, key) => Object.fromEntries(Object.entries(obj).filter(([k]) => k !== key));
+  renderList('nukedSites', Object.keys(sites),
+    (h) => save({ nuked: { ...state.nuked, sites: without(sites, h) } }),
+    (h) => `${h} (${sites[h].length} ${sites[h].length === 1 ? 'thing' : 'things'})`);
+  renderList('nukedServices', Object.keys(services),
+    (d) => save({ nuked: { ...state.nuked, services: without(services, d) } }),
+    (d) => `${services[d].name} (${d})${services[d].from ? `, learned on ${services[d].from}` : ''}`);
 }
 
 function render() {
@@ -61,6 +72,7 @@ function render() {
   renderCategories();
   renderList('pausedList', state.allowlist, (h) => save({ allowlist: state.allowlist.filter((x) => x !== h) }));
   renderList('unwallList', state.unwallSites, (h) => save({ unwallSites: state.unwallSites.filter((x) => x !== h) }));
+  renderNuked();
 
   const rows = $('listRows');
   rows.replaceChildren();
