@@ -1,5 +1,5 @@
 ! Title: uBlock filters – Cookie Notices
-! Last modified: Mon, 28 Sep 2026 04:05:14 +0000
+! Last modified: Sat, 21 Nov 2026 18:48:08 +0000
 ! Expires: 7 days
 ! Description: Filters optimized for uBlock Origin, to be used with EasyList's and/or Adguard's "Cookie Notices" list(s)
 ! License: https://github.com/uBlockOrigin/uAssets/blob/master/LICENSE
@@ -100,6 +100,20 @@ beitberl.ac.il,shimur.org###MavilixCookiesBox
 ! https://github.com/uBlockOrigin/uAssets/issues/34622
 metro-cc.hr##.consent-disclaimer
 metro-cc.hr##body:style(overflow: auto !important;)
+! https://github.com/uBlockOrigin/uAssets/issues/34814
+||trk.cultura.com/privacy/
+! https://github.com/uBlockOrigin/uAssets/issues/34878
+||ccm.merudata.app^
+! https://github.com/uBlockOrigin/uAssets/issues/33342
+||cdn.ing.com/ing-feat-cookie-preference/
+! https://github.com/uBlockOrigin/uAssets/issues/22663#issuecomment-6218657450
+/wrapperMessagingWithoutDetection.js$important,domain=tomsguide.com
+! https://github.com/uBlockOrigin/uAssets/pull/35108
+home-appliances.philips##vers-anonymous-consent-management-banner
+home-appliances.philips##body.modal-open:style(overflow: auto !important;)
+! https://www.akkupojat.fi/
+akkupojat.fi###cookiesModal
+akkupojat.fi##html:style(overflow: auto !important)
 
 !!! Trusted scriptlets------------------------------------------------------------
 
@@ -495,9 +509,6 @@ revolut.com##+js(trusted-set-cookie, rev_cookie_consent, {%22preferences%22:fals
 ! necessary - https://github.com/easylist/easylist/issues/20485
 finnair.com##+js(trusted-set-cookie, FINNAIR_COOKIE_CONSENTS, W3siY29uc2VudFRleHRJZCI6ImYtY29va2llcy1hbmFseXRpY3MiLCJlZmZlY3RpdmVGcm9tIjoxNzAxNjQwODAwMDAwLCJjb25zZW50U3RhdHVzIjoiZGVjbGluZWQifSx7ImNvbnNlbnRUZXh0SWQiOiJmLWNvb2tpZXMtcGVyc29uYWxpemF0aW9uIiwiZWZmZWN0aXZlRnJvbSI6MTUyMjUzMDAwMDAwMCwiY29uc2VudFN0YXR1cyI6ImRlY2xpbmVkIn0seyJjb25zZW50VGV4dElkIjoiZi1jb29raWVzLWFkdmVydGlzaW5nIiwiZWZmZWN0aXZlRnJvbSI6MTcwODYzOTIwMDAwMCwiY29uc2VudFN0YXR1cyI6ImRlY2xpbmVkIn1d)
 finnair.com##+js(trusted-set-cookie, FINNAIR_COOKIE_ID, l-d3a86210-7bdf-41eb-bc29-9c233e0f4c9c)
-! https://github.com/uBlockOrigin/uAssets/issues/26022
-cosmotemessageplus.gr##+js(trusted-set-cookie, cookie_level, %7B%22necessary%22%3A%221%22%2C%22performance%22%3A%220%22%2C%22remarketing%22%3A%220%22%7D)
-cosmotemessageplus.gr##+js(set-cookie, cookie_optin, accepted)
 ! Only necessary, expire 1 month
 veikkaus.fi##+js(trusted-set-cookie, gdpr, -ga-ads-fbp-htj-yt, 2629743)
 veikkaus.fi##+js(trusted-set-local-storage-item, cookie-data, '{"version":"20210906","value":"-ga-ads-fbp-htj-yt"}')
@@ -531,7 +542,7 @@ bbc.com>>##+js(trusted-click-element, button[title="I do not agree"])
 @@||cmp.inmobi.com/GVL-v3/$domain=ilgiornale.it
 @@||cmp.inmobi.com/tcfv2/$domain=ilgiornale.it
 @@||cmp.inmobi.com^*/choice.js$domain=ilgiornale.it
-ilgiornale.it##+js(trusted-click-element, #qc-cmp2-container button#disagree-btn)
+ilgiornale.it##+js(trusted-click-element, #qc-cmp2-container button#disagree-btn:not([disabled]))
 ! https://github.com/uBlockOrigin/uAssets/issues/28263
 deltaforce.garena.com##+js(trusted-set-local-storage-item, Cookies, '{"googleAnalytics":false,"facebookPixel":false,"tikTokPixel":false,"googleConversionTag":false}')
 ! https://github.com/AdguardTeam/AdguardFilters/issues/205429
@@ -653,6 +664,8 @@ urlando.de##+js(trusted-set-cookie, urlando_consent, '{"analytics":false,"market
 admind-ai.com##+js(trusted-set-local-storage-item, admind_cookie_consent_v1, '{"necessary":true,"analytics":false,"preferences":false,"timestamp":"$currentISODate$","version":1}')
 ! https://github.com/uBlockOrigin/uAssets/issues/33078
 tirerack.com##+js(trusted-click-element, #meru-cm button.meru-cc__bn[aria-label="Reject All"], , 2000)
+! reject 
+marykay.com##+js(trusted-click-element, button[aria-label="Reject All"], , 1000)
 ! https://github.com/uBlockOrigin/uAssets/issues/33101
 handyhuellen.de,smartphonehoesjes.nl,ploonk.fr##+js(trusted-set-local-storage-item, mage_consent, '{"timestamp":$now$,"data":{"functional":true,"marketing":false}}')
 ! https://github.com/uBlockOrigin/uAssets/pull/33130
@@ -685,7 +698,8 @@ asket.com##+js(trusted-set-cookie, CookieConsent, "{stamp:'',necessary:true,pref
 ! https://github.com/uBlockOrigin/uAssets/issues/33504
 redact.dev##+js(trusted-set-cookie, tracking-consent, %7B%22version%22%3A1%2C%22consent%22%3A%7B%22essential%22%3Atrue%2C%22tracking%22%3Afalse%2C%22marketing%22%3Afalse%7D%2C%22timestamp%22%3A$now$%7D, , , reload, 1, dontOverwrite, 1)
 ! https://github.com/uBlockOrigin/uAssets/issues/33511
-coolblue.de##+js(trusted-set-cookie, cookie-preferences, eyJ2ZXJzaW9uIjoiMjAyNTA1MDciLCJmdW5jdGlvbmFsIjp7ImNhIjp0cnVlfSwiYW5hbHl0aWNhbCI6eyJhdyI6ZmFsc2UsImNlIjpmYWxzZSwiZGQiOmZhbHNlLCJnYSI6ZmFsc2UsIm9wIjpmYWxzZSwidHAiOmZhbHNlfSwibWFya2V0aW5nIjp7ImZiIjpmYWxzZSwiZ21wIjpmYWxzZSwiaW4iOmZhbHNlLCJqcyI6ZmFsc2UsImtrIjpmYWxzZSwibGkiOmZhbHNlLCJtYSI6ZmFsc2UsInJkIjpmYWxzZSwic2MiOmZhbHNlLCJzdCI6ZmFsc2UsInR0IjpmYWxzZX19, , , domain, .coolblue.de, reload, 1)
+! https://github.com/uBlockOrigin/uAssets/issues/34853
+coolblue.be,coolblue.de##+js(trusted-set-cookie, cookie-preferences, eyJ2ZXJzaW9uIjoiMjAyNTA1MDciLCJmdW5jdGlvbmFsIjp7ImNhIjp0cnVlfSwiYW5hbHl0aWNhbCI6eyJhdyI6ZmFsc2UsImNlIjpmYWxzZSwiZGQiOmZhbHNlLCJnYSI6ZmFsc2UsIm9wIjpmYWxzZSwidHAiOmZhbHNlfSwibWFya2V0aW5nIjp7ImZiIjpmYWxzZSwiZ21wIjpmYWxzZSwiaW4iOmZhbHNlLCJqcyI6ZmFsc2UsImtrIjpmYWxzZSwibGkiOmZhbHNlLCJtYSI6ZmFsc2UsInJkIjpmYWxzZSwic2MiOmZhbHNlLCJzdCI6ZmFsc2UsInR0IjpmYWxzZX19, , , reload, 1)
 ! https://github.com/uBlockOrigin/uAssets/issues/33526
 indonesiabusinesspost.com##+js(trusted-set-local-storage-item, cookieConsent, '{"performance":false,"functionality":false,"advertising":false}')
 ! https://github.com/uBlockOrigin/uAssets/pull/33552
@@ -738,6 +752,11 @@ consent.formula1.com##+js(trusted-click-element, button[aria-label="Essential on
 thomas-krenn.com##+js(trusted-set-cookie, copol_www_thomas-krenn_com_optin_categories, %5B%22essential%22%5D, , , domain, .www.thomas-krenn.com)
 ! https://github.com/uBlockOrigin/uAssets/issues/34611
 platoapp.com##+js(trusted-set-local-storage-item, trackingConsent, not-granted)
+! https://github.com/uBlockOrigin/uAssets/issues/34830
+penny-publish.blaetterkatalog.de##+js(trusted-set-local-storage-item, DM_prefs,'{"cookie_hint":true,"accept_cookies":false,"_childs":[],"_type":1}')
+! https://github.com/uBlockOrigin/uAssets/issues/35104
+@@||iubenda.com^$script,xhr,domain=virgilio.it
+virgilio.it##+js(trusted-click-element, button.iubenda-cs-reject-btn)
 
 !! Needs additional cookies
 
@@ -763,7 +782,7 @@ vkmag.com##+js(trusted-set-cookie, eupubconsent-v2, CPt6LrpPt6LrpAcABBENDKCgAAAA
 mtvuutiset.fi##+js(trusted-set-cookie, OptanonConsent, groups=1%3A1%2C2%3A0%2C3%3A1%2C4%3A0%2C5%3A1%2CBG57%3A0%2CBG58%3A0%2CBG59%3A0, 1year)
 
 ! Almamedia sites, accept
-almamedia.fi>>,ampparit.com>>,arvopaperi.fi>>,iltalehti.fi>>,kauppalehti.fi>>,mikrobitti.fi>>,talouselama.fi>>,tekniikkatalous.fi>>,tivi.fi>>,uusisuomi.fi>>,vuokraovi.com>>##+js(trusted-click-element, button[title="Hyväksy"])
+almamedia.fi>>,ampparit.com>>,arvopaperi.fi>>,iltalehti.fi>>,kauppalehti.fi>>,mikrobitti.fi>>,talouselama.fi>>,tekniikkatalous.fi>>,tivi.fi>>,uusisuomi.fi>>,vuokraovi.com>>##+js(trusted-click-element, button[title^="Hyväksy"])
 
 ! Mandatory, performance + functional
 ! https://www.gamespot.com/videos/firearms-expert-reacts-to-crysis-franchise-guns/2300-6461700/
@@ -787,7 +806,7 @@ christianconcern.com##+js(trusted-set-cookie, STYXKEY_your_privacy_settings, %7B
 
 
 ! Accept - Sanoma corporation sites
-aamulehti.fi>>,etlehti.fi>>,gloria.fi>>,hs.fi>>,hyvaterveys.fi>>,is.fi>>,jamsanseutu.fi>>,janakkalansanomat.fi>>,kankaanpaanseutu.fi>>,kmvlehti.fi>>,kodinkuvalehti.fi>>,merikarvialehti.fi>>,nokianuutiset.fi>>,pelikone.fi>>,rannikkoseutu.fi>>,ruutu.fi>>,satakunnankansa.fi>>,soppa365.fi>>,suurkeuruu.fi>>,sydansatakunta.fi>>,tyrvaansanomat.fi>>,valkeakoskensanomat.fi>>,vauva.fi>>##+js(trusted-click-element, [title="OK"])
+aamulehti.fi>>,etlehti.fi>>,gloria.fi>>,hs.fi>>,hyvaterveys.fi>>,is.fi>>,jamsanseutu.fi>>,janakkalansanomat.fi>>,kankaanpaanseutu.fi>>,kmvlehti.fi>>,kodinkuvalehti.fi>>,merikarvialehti.fi>>,nokianuutiset.fi>>,pelikone.fi>>,rannikkoseutu.fi>>,ruutu.fi>>,satakunnankansa.fi>>,soppa365.fi>>,suurkeuruu.fi>>,sydansatakunta.fi>>,tyrvaansanomat.fi>>,valkeakoskensanomat.fi>>,vauva.fi>>##+js(trusted-click-element, .sp_choice_type_11)
 
 ! https://www.wired.com/story/gadget-lab-podcast-573/
 ! https://www.vogue.co.uk/arts-and-lifestyle/article/grammy-awards-2023-best-social-reactions
@@ -1036,7 +1055,7 @@ highlights.legaseriea.it##+js(trusted-click-element, #cl-consent button[data-rol
 
 ! _x13eucookie sites
 ! Necessary
-babolat-tenis.pl,denonmarkabolt.hu,monocerus.pl,plastiflora.pl,s4home.pl,salonydenon.pl,vipera.com.pl,zdrowomania.pl##+js(trusted-set-cookie, _x13eucookie, '{"1":true,"2":false,"3":false,"4":false,"5":false,"6":false}')
+babolat-tenis.pl,monocerus.pl,plastiflora.pl,s4home.pl,salonydenon.pl,vipera.com.pl,zdrowomania.pl##+js(trusted-set-cookie, _x13eucookie, '{"1":true,"2":false,"3":false,"4":false,"5":false,"6":false}')
 ! Security
 avstore.pl,bednarek.sklep.pl,byinsomnia.com,foto-tip.pl,handloteka.net,hiprom.pl,meblewypoczynkowe.pl,plantica.pl,produkcjakartonow.pl,supportart.pl,yoclub.pl##+js(trusted-set-cookie, _x13eucookie, '{"1":true,"2":false,"3":false,"4":false,"5":true,"6":false}')
 ! Other
@@ -1628,11 +1647,13 @@ consent.faz.net,derstandard.at,derstandard.de##+js(trusted-click-element, button
 !#if env_safari
 ansa.it##+js(rpnt, script, $(function(), 'if (navigator.userAgent.includes("iPhone")){window.addEventListener("load",()=>{_iub.cs.acceptAll("bannerAcceptClicked");_iub.cs.ui.banner.removeBanner()});}$(function()', sedCount, 1)
 !#endif
-automoto.it,ansa.it,cdt.ch,delladio.it,huffingtonpost.it,internazionale.it,lastampa.it,macitynet.it,moto.it,movieplayer.it,multiplayer.it,repubblica.it,tomshw.it,skuola.net,spaziogames.it,today.it,tuttoandroid.net,tuttotech.net##+js(trusted-click-element, button.iubenda-cs-accept-btn, , 2000)
+ansa.it,cdt.ch,delladio.it,huffingtonpost.it,internazionale.it,lastampa.it,macitynet.it,movieplayer.it,multiplayer.it,repubblica.it,tomshw.it,skuola.net,spaziogames.it,today.it,tuttoandroid.net,tuttotech.net##+js(trusted-click-element, button.iubenda-cs-accept-btn, , 2000)
 !#if !ext_ubol
-automoto.it,ansa.it,cdt.ch,delladio.it,huffingtonpost.it,internazionale.it,lastampa.it,macitynet.it,moto.it,movieplayer.it,multiplayer.it,repubblica.it,tomshw.it,skuola.net,spaziogames.it,today.it,tuttoandroid.net,tuttotech.net###iubenda-cs-banner:style(visibility: hidden !important; opacity: 0 !important;)
-automoto.it,ansa.it,cdt.ch,delladio.it,huffingtonpost.it,internazionale.it,lastampa.it,macitynet.it,moto.it,movieplayer.it,multiplayer.it,repubblica.it,tomshw.it,skuola.net,spaziogames.it,today.it,tuttoandroid.net,tuttotech.net##html:style(overflow: auto !important;)
+ansa.it,cdt.ch,delladio.it,huffingtonpost.it,internazionale.it,lastampa.it,macitynet.it,movieplayer.it,multiplayer.it,repubblica.it,tomshw.it,skuola.net,spaziogames.it,today.it,tuttoandroid.net,tuttotech.net###iubenda-cs-banner:style(visibility: hidden !important; opacity: 0 !important;)
+ansa.it,cdt.ch,delladio.it,huffingtonpost.it,internazionale.it,lastampa.it,macitynet.it,movieplayer.it,multiplayer.it,repubblica.it,tomshw.it,skuola.net,spaziogames.it,today.it,tuttoandroid.net,tuttotech.net##html:style(overflow: auto !important;)
 !#endif
+! https://github.com/uBlockOrigin/uAssets/issues/20960#issuecomment-6549926022
+automoto.it,moto.it##+js(trusted-click-element, when-visible:button.iubenda-cs-accept-btn, , 2000)
 ! https://github.com/uBlockOrigin/uAssets/pull/25606
 ! https://github.com/uBlockOrigin/uAssets/pull/25324
 ilgazzettino.it,ilmessaggero.it,ilsecoloxix.it###iubenda-cs-banner:style(visibility: hidden !important;)
@@ -1909,6 +1930,7 @@ ignboards.com##+js(trusted-set-cookie, boards-eu-gdpr, eu, , , domain, ignboards
 
 ! https://web.de/ - accept
 web.de##+js(trusted-click-element, button[data-id="save-all-pur"], , 1000)
+plus.web.de##+js(trusted-click-element, when-visible:button#save-all-pur)
 ! consent wall
 web.de##+js(trusted-click-element, a[aria-label="Abonnieren Sie ein Postfach ohne Fremdwerbung"], , 1000)
 
@@ -2641,9 +2663,6 @@ intiqore.de##+js(trusted-set-local-storage-item, analytics_consent, '{"value":"d
 ! reject
 swiatleku.pl##+js(trusted-set-cookie, __CA__, ODY4ODQxMA==)
 
-! reject
-mudanzavila.es##+js(trusted-click-element, button.cookies-modal-warning-reject-button, , 1000)
-
 ! essential only
 steuerbot.com##+js(trusted-set-local-storage-item, cookies, '{"essential":true,"performance":false,"marketing":false}')
 
@@ -3179,7 +3198,7 @@ testwise.com##+js(trusted-click-element, button.ui-button-primary-wide.ui-button
 console.anthropic.com##+js(trusted-set-cookie, anthropic-consent-preferences, '{"analytics":false,"marketing":false}', , , reload, 1)
 
 ! decline
-tonyschocolonely.com,fitplus.is,fransdegrebber.nl,lilliputpress.ie,lexibo.com,marin-milou.com,dare2tri.com,t3micro.*##+js(trusted-click-element, button#shopify-pc__banner__btn-decline, , 1000)
+tonyschocolonely.com,fransdegrebber.nl,lilliputpress.ie,lexibo.com,marin-milou.com,dare2tri.com,t3micro.*##+js(trusted-click-element, button#shopify-pc__banner__btn-decline, , 1000)
 
 ! refuse
 la-vie-naturelle.com##+js(trusted-click-element, button.consent-info-cta.more, , 500)
@@ -3286,10 +3305,6 @@ haberturk.com##+js(set-local-storage-item, cookie-policy, approve)
 ! decline
 citizenwatch.eu,apfelpage.de,clickskeks.at,clickskeks.de,abt-sportsline.de,wittmann-group.com##+js(trusted-click-element, button.ccm--decline-cookies, ,1000)
 @@||clickskeks.at^$domain=wittmann-group.com
-
-! reject
-otpbank.ro##+js(set-cookie, cookie-agreed, 2)
-otpbank.ro##+js(trusted-set-cookie, cookie-agreed-categories, '["necesare_de_functionalitate"]')
 
 ! reject
 exemplary.ai,forbo.com,stores.sk,nerdstar.de,prace.cz,profesia.sk,profesia.cz,pracezarohem.cz,atmoskop.cz,seduo.sk,seduo.cz,teamio.com,arnold-robot.com,cvonline.lt,cv.lv,cv.ee,dirbam.lt,visidarbi.lv,otsintood.ee,webtic.it##+js(trusted-click-element, button#c-s-bn, ,1000)
@@ -3876,7 +3891,7 @@ mediapart.fr##+js(trusted-click-element, button#js-gateaux-secs-deny, , 1500)
 athlon.com##+js(trusted-click-element, button[data-cookie-consent-accept-necessary-btn], , 1000)
 
 ! required
-alumniportal-deutschland.org,snoopmedia.com,myguide.de,daad.de##+js(trusted-click-element, button.qa-cookie-consent-accept-required, , 1500)
+snoopmedia.com,myguide.de,daad.de##+js(trusted-click-element, button.qa-cookie-consent-accept-required, , 1500)
 
 ! required
 bta.ee##+js(trusted-set-cookie, cookiesOptions, '{"ad_storage":0,"analytics_storage":0}')
@@ -4335,9 +4350,6 @@ northernpowergrid.com##+js(trusted-set-cookie, cookiesjsr, '{"what_are_cookies_"
 
 ! Necessary
 ptc.eu##+js(trusted-click-element, button.consent_agree_essential, , 1000)
-
-! Necessary
-ziegert-group.com##+js(trusted-click-element, span[data-cookieaccept="current"], , 1000)
 
 ! confinue without accepting
 lassuranceretraite.fr,interieur.gouv.fr,toureiffel.paris,economie.gouv.fr,education.gouv.fr,livoo.fr,interieur.gouv.fr,su.se,interieur.gouv.fr,zappo.fr##+js(trusted-click-element, button.tarteaucitronDeny, , 1800)
@@ -5202,7 +5214,7 @@ arredabook.it,condok.org,dietz-motoren.de##+js(trusted-set-local-storage-item, h
 arredabook.it,condok.org,dietz-motoren.de##+js(set-cookie, cookieconsent_status, allow, , reload, 1)
 
 ! selected
-ordblindenetvaerket.dk,boligbeton.dk,dukh.dk##+js(trusted-click-element, input[onclick="choseSelected()"], , 1000)
+boligbeton.dk,dukh.dk##+js(trusted-click-element, input[onclick="choseSelected()"], , 1000)
 
 ! reject
 pevgrow.com##+js(trusted-click-element, a#alcaCookieKo, , 1000)
@@ -5769,3 +5781,25 @@ shop-sks.com##.cookie-permission-container
 
 ! Necessary + Functional
 kuulolaiteparistokauppa.fi##+js(trusted-set-local-storage-item, cookie_consent, {"necessary":true\,"functional":true\,"analytics":false\,"marketing":false\,"timestamp":"$currentISODate$"})
+
+! https://github.com/uBlockOrigin/uAssets/issues/34682
+infopannes.solutions.hydroquebec.com##+js(trusted-set-local-storage-item, VERSION_CU, '{"version":13,"date":"$currentISODate$"}')
+
+! https://github.com/uBlockOrigin/uAssets/issues/34736
+automicgold.com##+js(trusted-set-cookie, cookieyes-consent, consentid:0\,consent:yes\,action:yes\,necessary:yes\,functional:yes\,analytics:no\,performance:yes\,advertisement:no\,other:no)
+
+! https://github.com/uBlockOrigin/uAssets/issues/35005 - statistical
+jysk.no##+js(trusted-set-cookie, OptanonConsent, groups=C0001%3A1%2CC0003%3A0%2CC0004%3A0%2CC0002%3A1, , , domain, jysk.no)
+jysk.no##+js(trusted-set-cookie, OptanonAlertBoxClosed, $currentDate$, , , domain, jysk.no)
+
+! https://github.com/uBlockOrigin/uAssets/issues/27656#issuecomment-6371556430
+edition.cnn.com##+js(trusted-click-element, when-visible:button#onetrust-reject-all-handler)
+
+! https://github.com/AdguardTeam/AdguardFilters/issues/246304
+alpsgo.it##+js(trusted-set-cookie, dp_cookieconsent_status, '{"status":"approved","checkboxes":[{"name":"statistics","checked":false},{"name":"marketing","checked":false}]}')
+
+! https://github.com/uBlockOrigin/uAssets/issues/11450#issuecomment-6658335333
+profit.ro##+js(trusted-click-element, #onetrust-accept-btn-handler)
+
+! https://historianet.fi/kulttuuri/arkeologia/3d-kuvat-paljastavat-uskomattoman-loydon-titanicin-hylysta/
+historianet.fi##+js(trusted-click-element, #didomi-notice-agree-button)
